@@ -7,13 +7,16 @@
 from __future__ import annotations
 
 import json
+import os
 from collections.abc import Mapping, Sequence
-from dataclasses import dataclass, field, InitVar
+from dataclasses import InitVar, dataclass, field
 from pathlib import Path
 from typing import Any, ClassVar
 
+import boto3
 import h5py
 import numpy as np
+import s3fs
 import torch
 from torch import nn
 
@@ -119,13 +122,9 @@ class EMGSessionData:
         start_idx, end_idx = self.timestamps.searchsorted([start_t, end_t])
         return self[start_idx:end_idx]
 
-    def ground_truth(
-        self, start_t: float = -np.inf, end_t: float = np.inf
-    ) -> LabelData:
+    def ground_truth(self, start_t: float = -np.inf, end_t: float = np.inf) -> LabelData:
         if self.condition == "on_keyboard":
-            return LabelData.from_keystrokes(
-                self.keystrokes, start_t=start_t, end_t=end_t
-            )
+            return LabelData.from_keystrokes(self.keystrokes, start_t=start_t, end_t=end_t)
         else:
             return LabelData.from_prompts(self.prompts, start_t=start_t, end_t=end_t)
 
@@ -459,14 +458,12 @@ class WindowedEMGDataset(torch.utils.data.Dataset):
         padding: tuple[int, int],
     ) -> None:
         with EMGSessionData(self.hdf5_path) as session:
-            assert (
-                session.condition == "on_keyboard"
-            ), f"Unsupported condition {self.session.condition}"
+            assert session.condition == "on_keyboard", (
+                f"Unsupported condition {self.session.condition}"
+            )
             self.session_length = len(session)
 
-        self.window_length = (
-            window_length if window_length is not None else self.session_length
-        )
+        self.window_length = window_length if window_length is not None else self.session_length
         self.stride = stride if stride is not None else self.window_length
         assert self.window_length > 0 and self.stride > 0
 
@@ -510,9 +507,7 @@ class WindowedEMGDataset(torch.utils.data.Dataset):
         return emg, labels
 
     @staticmethod
-    def collate(
-        samples: Sequence[tuple[torch.Tensor, torch.Tensor]]
-    ) -> dict[str, torch.Tensor]:
+    def collate(samples: Sequence[tuple[torch.Tensor, torch.Tensor]]) -> dict[str, torch.Tensor]:
         """Collates a list of samples into a padded batch of inputs and targets.
         Each input sample in the list should be a tuple of (input, target) tensors.
         Also returns the lengths of unpadded inputs and targets for use in loss
@@ -528,12 +523,8 @@ class WindowedEMGDataset(torch.utils.data.Dataset):
         target_batch = nn.utils.rnn.pad_sequence(targets)  # (T, N)
 
         # Lengths of unpadded input and target sequences for each batch entry
-        input_lengths = torch.as_tensor(
-            [len(_input) for _input in inputs], dtype=torch.int32
-        )
-        target_lengths = torch.as_tensor(
-            [len(target) for target in targets], dtype=torch.int32
-        )
+        input_lengths = torch.as_tensor([len(_input) for _input in inputs], dtype=torch.int32)
+        target_lengths = torch.as_tensor([len(target) for target in targets], dtype=torch.int32)
 
         return {
             "inputs": input_batch,
@@ -541,3 +532,143 @@ class WindowedEMGDataset(torch.utils.data.Dataset):
             "input_lengths": input_lengths,
             "target_lengths": target_lengths,
         }
+
+
+class S3WindowedEMGDataset(WindowedEMGDataset):
+    """A `torch.utils.data.Dataset` that loads EMG data from S3 buckets.
+    This extends WindowedEMGDataset with the ability to read from S3 instead of local disk.
+
+    Args:
+        s3_path (str): S3 path to the session file in hdf5 format (s3://bucket/path/to/file.hdf5)
+        window_length (int): Size of each window. Specify None for no windowing.
+        stride (int): Stride between consecutive windows.
+        padding (tuple[int, int]): Left and right contextual padding for windows.
+        jitter (bool): If True, randomly jitter the offset of each window.
+        aws_access_key_id (str): AWS access key. Defaults to AWS_ACCESS_KEY_ID env var.
+        aws_secret_access_key (str): AWS secret key. Defaults to AWS_SECRET_ACCESS_KEY env var.
+        endpoint_url (str): S3 endpoint URL. Defaults to AWS_ENDPOINT_URL env var.
+        transform (Callable): A transform to apply to each window.
+    """
+
+    def __init__(
+        self,
+        s3_path: str,
+        window_length: int | None = None,
+        stride: int | None = None,
+        padding: tuple[int, int] = (0, 0),
+        jitter: bool = False,
+        aws_access_key_id: str | None = None,
+        aws_secret_access_key: str | None = None,
+        endpoint_url: str | None = None,
+        transform: Transform[np.ndarray, torch.Tensor] = field(default_factory=ToTensor),
+    ) -> None:
+        self.s3_path = s3_path
+        self.jitter = jitter
+        self.transform = transform if transform is not None else ToTensor()
+
+        # Initialize S3 config
+        self.aws_access_key_id = aws_access_key_id or os.environ.get("AWS_ACCESS_KEY_ID")
+        self.aws_secret_access_key = aws_secret_access_key or os.environ.get(
+            "AWS_SECRET_ACCESS_KEY"
+        )
+        self.endpoint_url = endpoint_url or os.environ.get("AWS_ENDPOINT_URL")
+
+        # Parse S3 path
+        self.bucket, self.key = self._parse_s3_path(s3_path)
+
+        # Set up initial parameters
+        with self._get_emg_session() as session:
+            assert session.condition == "on_keyboard", f"Unsupported condition {session.condition}"
+            self.session_length = len(session)
+
+        self.window_length = window_length if window_length is not None else self.session_length
+        self.stride = stride if stride is not None else self.window_length
+        assert self.window_length > 0 and self.stride > 0
+
+        (self.left_padding, self.right_padding) = padding
+        assert self.left_padding >= 0 and self.right_padding >= 0
+
+    def _parse_s3_path(self, s3_path: str) -> tuple[str, str]:
+        """Parse S3 path into bucket and key."""
+        if s3_path.startswith("s3://"):
+            s3_path = s3_path[5:]
+        parts = s3_path.split("/", 1)
+        if len(parts) == 1:
+            return parts[0], ""
+        return parts[0], parts[1]
+
+    def _get_s3fs(self) -> s3fs.S3FileSystem:
+        """Get an S3 filesystem."""
+        fs_kwargs = {}
+        if self.endpoint_url:
+            fs_kwargs["endpoint_url"] = self.endpoint_url
+        if self.aws_access_key_id and self.aws_secret_access_key:
+            fs_kwargs["key"] = self.aws_access_key_id
+            fs_kwargs["secret"] = self.aws_secret_access_key
+
+        return s3fs.S3FileSystem(**fs_kwargs)
+
+    def _get_emg_session(self) -> EMGSessionData:
+        """Get an EMGSessionData object pointing to the S3 file."""
+        s3fs = self._get_s3fs()
+        file_obj = s3fs.open(f"{self.bucket}/{self.key}", "rb")
+        h5_file = h5py.File(file_obj, "r")
+
+        # Create a custom path-like object that h5py can use
+        class S3Path:
+            def __init__(self, path):
+                self.path = path
+
+            def __str__(self):
+                return self.path
+
+        # Initialize EMGSessionData with our HDF5 file
+        session = EMGSessionData.__new__(EMGSessionData)
+        session.hdf5_path = S3Path(f"s3://{self.bucket}/{self.key}")  # type: ignore
+        session._file = h5_file
+
+        emg2qwerty_group = session._file[EMGSessionData.HDF5_GROUP]
+        session.timeseries = emg2qwerty_group[EMGSessionData.TIMESERIES]
+
+        # Load metadata
+        session.metadata = {}
+        for key, val in emg2qwerty_group.attrs.items():
+            if key in {EMGSessionData.KEYSTROKES, EMGSessionData.PROMPTS}:
+                session.metadata[key] = json.loads(val)
+            else:
+                session.metadata[key] = val
+
+        return session
+
+    def __getitem__(self, idx: int) -> tuple[torch.Tensor, torch.Tensor]:
+        """Get a window of EMG data, maintaining the same interface as WindowedEMGDataset."""
+        # Lazy init the EMGSessionData instance per worker
+        if not hasattr(self, "session"):
+            self.session = self._get_emg_session()
+
+        offset = idx * self.stride
+
+        # Randomly jitter the window offset
+        leftover = len(self.session) - (offset + self.window_length)
+        if leftover < 0:
+            raise IndexError(f"Index {idx} out of bounds")
+        if leftover > 0 and self.jitter:
+            offset += np.random.randint(0, min(self.stride, leftover))
+
+        # Expand window to include contextual padding and fetch
+        window_start = max(offset - self.left_padding, 0)
+        window_end = offset + self.window_length + self.right_padding
+        window = self.session[window_start:window_end]
+
+        # Extract EMG tensor corresponding to the window
+        emg = self.transform(window)
+        assert torch.is_tensor(emg)
+
+        # Extract labels corresponding to the original (un-padded) window
+        timestamps = window[EMGSessionData.TIMESTAMPS]
+        start_t = timestamps[offset - window_start]
+        end_t = timestamps[(offset + self.window_length - 1) - window_start]
+        label_data = self.session.ground_truth(start_t, end_t)
+        labels = torch.as_tensor(label_data.labels)
+
+        return emg, labels

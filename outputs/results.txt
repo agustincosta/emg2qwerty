@@ -1,0 +1,3 @@
+{'val_metrics': [{'val/loss': 0.15839724242687225}],
+ 'test_metrics': [{'test/loss': 0.17700587213039398}],
+ 'best_checkpoint': '/home/ec2-user/emg2qwerty/logs/2025-03-05/15-40-34/checkpoints/epoch=148-step=17880.ckpt'}

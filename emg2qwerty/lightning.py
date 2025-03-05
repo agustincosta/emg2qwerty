@@ -20,7 +20,7 @@ from torchmetrics import MetricCollection
 
 from emg2qwerty import utils
 from emg2qwerty.charset import charset
-from emg2qwerty.data import LabelData, WindowedEMGDataset
+from emg2qwerty.data import LabelData, S3WindowedEMGDataset, WindowedEMGDataset
 from emg2qwerty.metrics import CharacterErrorRates
 from emg2qwerty.modules import (
     EMGSpecAutoEncoder,
@@ -38,12 +38,13 @@ class WindowedEMGDataModule(pl.LightningDataModule):
         padding: tuple[int, int],
         batch_size: int,
         num_workers: int,
-        train_sessions: Sequence[Path],
-        val_sessions: Sequence[Path],
-        test_sessions: Sequence[Path],
+        train_sessions: Sequence[Path | str],
+        val_sessions: Sequence[Path | str],
+        test_sessions: Sequence[Path | str],
         train_transform: Transform[np.ndarray, torch.Tensor],
         val_transform: Transform[np.ndarray, torch.Tensor],
         test_transform: Transform[np.ndarray, torch.Tensor],
+        s3_config: dict[str, str] | None = None,
     ) -> None:
         super().__init__()
 
@@ -61,11 +62,41 @@ class WindowedEMGDataModule(pl.LightningDataModule):
         self.val_transform = val_transform
         self.test_transform = test_transform
 
+        self.s3_config = s3_config
+
     def setup(self, stage: str | None = None) -> None:
+        def create_dataset(path, transform, window_length, padding, jitter):
+            # Check if path is an S3 path
+            if isinstance(path, str) and path.startswith("s3://") and self.s3_config is not None:
+                return S3WindowedEMGDataset(
+                    s3_path=path,
+                    transform=transform,
+                    window_length=window_length,
+                    padding=padding,
+                    jitter=jitter,
+                    aws_access_key_id=self.s3_config.get("aws_access_key_id")
+                    if hasattr(self, "s3_config")
+                    else None,
+                    aws_secret_access_key=self.s3_config.get("aws_secret_access_key")
+                    if hasattr(self, "s3_config")
+                    else None,
+                    endpoint_url=self.s3_config.get("endpoint_url")
+                    if hasattr(self, "s3_config")
+                    else None,
+                )
+            else:
+                return WindowedEMGDataset(
+                    hdf5_path=path,
+                    transform=transform,
+                    window_length=window_length,
+                    padding=padding,
+                    jitter=jitter,
+                )
+
         self.train_dataset = ConcatDataset(
             [
-                WindowedEMGDataset(
-                    hdf5_path,
+                create_dataset(
+                    path=hdf5_path,
                     transform=self.train_transform,
                     window_length=self.window_length,
                     padding=self.padding,
@@ -74,10 +105,11 @@ class WindowedEMGDataModule(pl.LightningDataModule):
                 for hdf5_path in self.train_sessions
             ]
         )
+
         self.val_dataset = ConcatDataset(
             [
-                WindowedEMGDataset(
-                    hdf5_path,
+                create_dataset(
+                    path=hdf5_path,
                     transform=self.val_transform,
                     window_length=self.window_length,
                     padding=self.padding,
@@ -86,10 +118,11 @@ class WindowedEMGDataModule(pl.LightningDataModule):
                 for hdf5_path in self.val_sessions
             ]
         )
+
         self.test_dataset = ConcatDataset(
             [
-                WindowedEMGDataset(
-                    hdf5_path,
+                create_dataset(
+                    path=hdf5_path,
                     transform=self.test_transform,
                     # Feed the entire session at once without windowing/padding
                     # at test time for more realism
@@ -312,7 +345,7 @@ class AutoencoderModule(pl.LightningModule):
         loss = F.mse_loss(reconstructed, inputs)
         metrics = self.metrics[f"{phase}_metrics"]
         metrics.update(loss, N)
-        self.log(f"Autoencoder {phase}/loss", loss, batch_size=N, sync_dist=True)
+        self.log(f"{phase}/loss", loss, batch_size=N, sync_dist=True)
         return loss
 
     def configure_optimizers(self):

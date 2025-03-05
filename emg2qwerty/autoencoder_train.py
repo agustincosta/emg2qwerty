@@ -46,19 +46,42 @@ def main(config: DictConfig):
     pl.seed_everything(config.seed, workers=True)
 
     # Helper to instantiate full paths for dataset sessions
-    def _full_session_paths(dataset: ListConfig) -> list[Path]:
+    def _full_session_paths(dataset: ListConfig) -> list[Path | str]:
         sessions = [session["session"] for session in dataset]
         users = [session["user"] for session in dataset]
-        if config.reduced:
-            return [
-                Path(config.dataset.root).joinpath(f"{user}_processed").joinpath(f"{session}.hdf5")
-                for session, user in zip(sessions, users)
-            ]
+
+        # Check if using S3 data source
+        if config.dataset.get("s3_enabled", False):
+            # Format S3 paths
+            s3_bucket = config.dataset.s3_bucket
+            s3_prefix = config.dataset.s3_prefix
+            if config.reduced:
+                return [
+                    f"s3://{s3_bucket}/{s3_prefix}/{user}_processed/{session}.hdf5"
+                    for session, user in zip(sessions, users)
+                ]
+            else:
+                if config.user == "generic":
+                    return [f"s3://{s3_bucket}/{s3_prefix}/{session}.hdf5" for session in sessions]
+                else:
+                    return [
+                        f"s3://{s3_bucket}/{user}/{session}.hdf5"
+                        for session, user in zip(sessions, users)
+                    ]
         else:
-            return [
-                Path(config.dataset.root).joinpath(f"{user}").joinpath(f"{session}.hdf5")
-                for session, user in zip(sessions, users)
-            ]
+            # Use local paths as before
+            if config.reduced:
+                return [
+                    Path(config.dataset.root)
+                    .joinpath(f"{user}_processed")
+                    .joinpath(f"{session}.hdf5")
+                    for session, user in zip(sessions, users)
+                ]
+            else:
+                return [
+                    Path(config.dataset.root).joinpath(f"{user}").joinpath(f"{session}.hdf5")
+                    for session, user in zip(sessions, users)
+                ]
 
     # Helper to instantiate transforms
     def _build_transform(configs: Sequence[DictConfig]) -> Transform[Any, Any]:
@@ -81,6 +104,15 @@ def main(config: DictConfig):
             lr=config.autoencoder.lr,
         )
 
+    # Prepare S3 configuration if enabled
+    s3_config = None
+    if config.dataset.get("s3_enabled", False):
+        s3_config = {
+            "aws_access_key_id": config.dataset.get("aws_access_key_id", None),
+            "aws_secret_access_key": config.dataset.get("aws_secret_access_key", None),
+            "endpoint_url": config.dataset.get("s3_endpoint_url", None),
+        }
+
     # Instantiate LightningDataModule
     log.info(f"Instantiating LightningDataModule {config.datamodule}")
     datamodule = instantiate(
@@ -93,6 +125,7 @@ def main(config: DictConfig):
         train_transform=_build_transform(config.transforms.train),
         val_transform=_build_transform(config.transforms.val),
         test_transform=_build_transform(config.transforms.test),
+        s3_config=s3_config,
         _convert_="object",
     )
 

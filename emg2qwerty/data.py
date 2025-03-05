@@ -18,10 +18,13 @@ import h5py
 import numpy as np
 import s3fs
 import torch
+from dotenv import load_dotenv
 from torch import nn
 
 from emg2qwerty.charset import CharacterSet, charset
 from emg2qwerty.transforms import ToTensor, Transform
+
+load_dotenv(override=True)
 
 
 @dataclass

@@ -45,11 +45,14 @@ class WindowedEMGDataModule(pl.LightningDataModule):
         val_transform: Transform[np.ndarray, torch.Tensor],
         test_transform: Transform[np.ndarray, torch.Tensor],
         s3_config: dict[str, str] | None = None,
+        cache_dir: str | None = None,
+        stride: int | None = None,
     ) -> None:
         super().__init__()
 
         self.window_length = window_length
         self.padding = padding
+        self.stride = stride
 
         self.batch_size = batch_size
         self.num_workers = num_workers
@@ -63,32 +66,31 @@ class WindowedEMGDataModule(pl.LightningDataModule):
         self.test_transform = test_transform
 
         self.s3_config = s3_config
+        self.cache_dir = cache_dir
 
     def setup(self, stage: str | None = None) -> None:
         def create_dataset(path, transform, window_length, padding, jitter):
             # Check if path is an S3 path
             if isinstance(path, str) and path.startswith("s3://") and self.s3_config is not None:
+                # Use our S3WindowedEMGDataset implementation
                 return S3WindowedEMGDataset(
                     s3_path=path,
                     transform=transform,
                     window_length=window_length,
+                    stride=self.stride if hasattr(self, "stride") else window_length,
                     padding=padding,
                     jitter=jitter,
-                    aws_access_key_id=self.s3_config.get("aws_access_key_id")
-                    if hasattr(self, "s3_config")
-                    else None,
-                    aws_secret_access_key=self.s3_config.get("aws_secret_access_key")
-                    if hasattr(self, "s3_config")
-                    else None,
-                    endpoint_url=self.s3_config.get("endpoint_url")
-                    if hasattr(self, "s3_config")
-                    else None,
+                    region=self.s3_config.get("region", "us-east-1"),
+                    aws_access_key_id=self.s3_config.get("aws_access_key_id"),
+                    aws_secret_access_key=self.s3_config.get("aws_secret_access_key"),
+                    endpoint_url=self.s3_config.get("endpoint_url"),
                 )
             else:
                 return WindowedEMGDataset(
-                    hdf5_path=path,
+                    hdf5_path=Path(path),
                     transform=transform,
                     window_length=window_length,
+                    stride=self.stride if hasattr(self, "stride") else window_length,
                     padding=padding,
                     jitter=jitter,
                 )

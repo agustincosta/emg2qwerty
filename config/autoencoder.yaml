@@ -23,6 +23,7 @@ autoencoder:
 datamodule:
   _target_: emg2qwerty.lightning.WindowedEMGDataModule
   window_length: 8000 # 4 sec windows for 2kHz EMG
+  stride: 4000 # Add stride parameter (50% overlap)
   padding: [1800, 200] # 900ms past context, 100ms future context
 
 trainer:
@@ -45,10 +46,11 @@ dataset:
   root: ${hydra:runtime.cwd}/data
   # S3 configuration
   s3_enabled: True
-  s3_bucket: "emg2qwerty"
-  s3_prefix: "dataset/emg2qwerty-data-2021-08"
+  s3_bucket: "emg2qwerty/dataset"
+  s3_prefix: "emg2qwerty-data-2021-08"
   aws_access_key_id: ${oc.env:AWS_ACCESS_KEY_ID,null}
   aws_secret_access_key: ${oc.env:AWS_SECRET_ACCESS_KEY,null}
+  aws_region: ${oc.env:AWS_REGION,null}
   s3_endpoint_url: ${oc.env:S3_ENDPOINT_URL,null}
 
 hydra:

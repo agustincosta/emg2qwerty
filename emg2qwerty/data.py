@@ -7,18 +7,16 @@
 from __future__ import annotations
 
 import json
-import os
 from collections.abc import Mapping, Sequence
 from dataclasses import InitVar, dataclass, field
 from pathlib import Path
 from typing import Any, ClassVar
 
-import boto3
 import h5py
 import numpy as np
-import s3fs
 import torch
 from dotenv import load_dotenv
+from s3torchconnector import S3Checkpoint, S3ClientConfig
 from torch import nn
 
 from emg2qwerty.charset import CharacterSet, charset
@@ -108,7 +106,8 @@ class EMGSessionData:
         return len(self.timeseries)
 
     def __getitem__(self, key: slice | str) -> np.ndarray:
-        return self.timeseries[key]
+        """Return a slice of the timeseries."""
+        return self.timeseries[key]  # type: ignore
 
     def slice(self, start_t: float = -np.inf, end_t: float = np.inf) -> np.ndarray:
         """Load and return a contiguous slice of the timeseries windowed by the
@@ -145,7 +144,7 @@ class EMGSessionData:
         path."""
         timestamps = self.timeseries[self.TIMESTAMPS]
         assert (np.diff(timestamps) >= 0).all(), "Timestamps are not monotonic"
-        return timestamps
+        return timestamps  # type: ignore
 
     @property
     def session_name(self) -> str:
@@ -206,7 +205,7 @@ class LabelData:
     def __post_init__(self, _timestamps: Sequence[float] | None) -> None:
         self.timestamps: np.ndarray | None = None
         if _timestamps is not None:
-            self.timestamps = np.array(_timestamps)
+            self.timestamps = np.array(_timestamps, dtype=float)
             assert self.timestamps.ndim == 1
             assert len(self.timestamps) == len(self.text)
             assert (np.diff(self.timestamps) >= 0).all(), "Timestamps are not monotonic"
@@ -347,7 +346,7 @@ class LabelData:
 
         # Do not add terminal newline if there was no prompt payload
         if text is None:
-            return cls(text="", _charset=charset)
+            return cls(text="", _charset=charset())
 
         text = _charset.clean_str(text)
         if enforce_newline and (len(text) == 0 or text[-1] != "⏎"):
@@ -461,9 +460,9 @@ class WindowedEMGDataset(torch.utils.data.Dataset):
         padding: tuple[int, int],
     ) -> None:
         with EMGSessionData(self.hdf5_path) as session:
-            assert session.condition == "on_keyboard", (
-                f"Unsupported condition {self.session.condition}"
-            )
+            assert (
+                session.condition == "on_keyboard"
+            ), f"Unsupported condition {self.session.condition}"
             self.session_length = len(session)
 
         self.window_length = window_length if window_length is not None else self.session_length
@@ -536,20 +535,96 @@ class WindowedEMGDataset(torch.utils.data.Dataset):
             "target_lengths": target_lengths,
         }
 
+    @classmethod
+    def from_s3(
+        cls,
+        s3_path: str,
+        transform: Transform[np.ndarray, torch.Tensor] = field(default_factory=ToTensor),
+        window_length: int | None = None,
+        stride: int | None = None,
+        padding: tuple[int, int] = (0, 0),
+        jitter: bool = False,
+        region: str = "us-east-1",
+        aws_access_key_id: str | None = None,
+        aws_secret_access_key: str | None = None,
+        endpoint_url: str | None = None,
+        cache_dir: str | None = None,
+    ) -> "WindowedEMGDataset":
+        """Create a WindowedEMGDataset from an S3 path using s3torchconnector.
 
-class S3WindowedEMGDataset(WindowedEMGDataset):
-    """A `torch.utils.data.Dataset` that loads EMG data from S3 buckets.
-    This extends WindowedEMGDataset with the ability to read from S3 instead of local disk.
+        Args:
+            s3_path: S3 URI to the HDF5 file (s3://bucket/path/to/file.hdf5)
+            transform: Transform to apply to the EMG data
+            window_length: Size of each window
+            stride: Stride between consecutive windows
+            padding: Left and right contextual padding for windows
+            jitter: Whether to randomly jitter window offsets
+            region: AWS region
+            aws_access_key_id: AWS access key ID
+            aws_secret_access_key: AWS secret access key
+            endpoint_url: S3 endpoint URL
+            cache_dir: Directory to cache downloaded files
+
+        Returns:
+            A WindowedEMGDataset instance that loads data from S3
+        """
+        import os
+        import tempfile
+
+        from s3torchconnector import S3Checkpoint
+
+        # Configure S3 client
+        s3_config = {}
+        if aws_access_key_id:
+            s3_config["aws_access_key_id"] = aws_access_key_id
+        if aws_secret_access_key:
+            s3_config["aws_secret_access_key"] = aws_secret_access_key
+        if endpoint_url:
+            s3_config["endpoint_url"] = endpoint_url
+
+        # Create S3 checkpoint for downloading
+        checkpoint = S3Checkpoint(region=region, **s3_config)
+
+        # Create a temporary file or use cache_dir if provided
+        if cache_dir:
+            os.makedirs(cache_dir, exist_ok=True)
+            local_path = os.path.join(cache_dir, os.path.basename(s3_path))
+        else:
+            temp_dir = tempfile.gettempdir()
+            local_path = os.path.join(temp_dir, f"emg2qwerty_{os.path.basename(s3_path)}")
+
+        # Download the file if it doesn't exist locally
+        if not os.path.exists(local_path):
+            with checkpoint.reader(s3_path) as reader, open(local_path, "wb") as f:
+                f.write(reader.read())
+
+        # Create a regular WindowedEMGDataset with the local file
+        return cls(
+            hdf5_path=Path(local_path),  # Convert to Path
+            window_length=window_length,
+            stride=stride,
+            padding=padding,
+            jitter=jitter,
+            transform=transform,
+        )
+
+
+class S3WindowedEMGDataset(torch.utils.data.Dataset):
+    """A `torch.utils.data.Dataset` that loads EMG data from S3 buckets using s3torchconnector.
+
+    This dataset provides the same functionality as WindowedEMGDataset but loads data
+    directly from S3 without saving files locally.
 
     Args:
         s3_path (str): S3 path to the session file in hdf5 format (s3://bucket/path/to/file.hdf5)
-        window_length (int): Size of each window. Specify None for no windowing.
+        window_length (int): Size of each window. Specify None for no windowing
         stride (int): Stride between consecutive windows.
         padding (tuple[int, int]): Left and right contextual padding for windows.
         jitter (bool): If True, randomly jitter the offset of each window.
-        aws_access_key_id (str): AWS access key. Defaults to AWS_ACCESS_KEY_ID env var.
-        aws_secret_access_key (str): AWS secret key. Defaults to AWS_SECRET_ACCESS_KEY env var.
-        endpoint_url (str): S3 endpoint URL. Defaults to AWS_ENDPOINT_URL env var.
+        region (str): AWS region
+        aws_access_key_id (str): AWS access key ID
+        aws_secret_access_key (str): AWS secret access key
+        endpoint_url (str): S3 endpoint URL
         transform (Callable): A transform to apply to each window.
     """
 
@@ -560,118 +635,183 @@ class S3WindowedEMGDataset(WindowedEMGDataset):
         stride: int | None = None,
         padding: tuple[int, int] = (0, 0),
         jitter: bool = False,
+        region: str = "us-east-1",
         aws_access_key_id: str | None = None,
         aws_secret_access_key: str | None = None,
         endpoint_url: str | None = None,
         transform: Transform[np.ndarray, torch.Tensor] = field(default_factory=ToTensor),
     ) -> None:
+        # S3 configuration
         self.s3_path = s3_path
-        self.jitter = jitter
-        self.transform = transform if transform is not None else ToTensor()
-
-        # Initialize S3 config
-        self.aws_access_key_id = aws_access_key_id or os.environ.get("AWS_ACCESS_KEY_ID")
-        self.aws_secret_access_key = aws_secret_access_key or os.environ.get(
-            "AWS_SECRET_ACCESS_KEY"
-        )
-        self.endpoint_url = endpoint_url or os.environ.get("AWS_ENDPOINT_URL")
+        self.region = region
+        self.aws_access_key_id = aws_access_key_id
+        self.aws_secret_access_key = aws_secret_access_key
+        self.endpoint_url = endpoint_url
 
         # Parse S3 path
-        self.bucket, self.key = self._parse_s3_path(s3_path)
-
-        # Set up initial parameters
-        with self._get_emg_session() as session:
-            assert session.condition == "on_keyboard", f"Unsupported condition {session.condition}"
-            self.session_length = len(session)
-
-        self.window_length = window_length if window_length is not None else self.session_length
-        self.stride = stride if stride is not None else self.window_length
-        assert self.window_length > 0 and self.stride > 0
-
-        (self.left_padding, self.right_padding) = padding
-        assert self.left_padding >= 0 and self.right_padding >= 0
-
-    def _parse_s3_path(self, s3_path: str) -> tuple[str, str]:
-        """Parse S3 path into bucket and key."""
         if s3_path.startswith("s3://"):
             s3_path = s3_path[5:]
         parts = s3_path.split("/", 1)
-        if len(parts) == 1:
-            return parts[0], ""
-        return parts[0], parts[1]
+        self.bucket = parts[0]
+        self.key = parts[1] if len(parts) > 1 else ""
 
-    def _get_s3fs(self) -> s3fs.S3FileSystem:
-        """Get an S3 filesystem."""
-        fs_kwargs = {}
-        if self.endpoint_url:
-            fs_kwargs["endpoint_url"] = self.endpoint_url
-        if self.aws_access_key_id and self.aws_secret_access_key:
-            fs_kwargs["key"] = self.aws_access_key_id
-            fs_kwargs["secret"] = self.aws_secret_access_key
+        # Dataset parameters
+        self.window_length = window_length
+        self.stride = stride if stride is not None else window_length
+        self.padding = padding
+        self.jitter = jitter
+        self.transform = transform
 
-        return s3fs.S3FileSystem(**fs_kwargs)
+        # Set up S3 client config
+        self.s3_config = {}
+        if aws_access_key_id and aws_secret_access_key:
+            self.s3_config["aws_access_key_id"] = aws_access_key_id
+            self.s3_config["aws_secret_access_key"] = aws_secret_access_key
+        if endpoint_url:
+            self.s3_config["endpoint_url"] = endpoint_url
+        S3ClientConfig()
 
-    def _get_emg_session(self) -> EMGSessionData:
-        """Get an EMGSessionData object pointing to the S3 file."""
-        s3fs = self._get_s3fs()
-        file_obj = s3fs.open(f"{self.bucket}/{self.key}", "rb")
-        h5_file = h5py.File(file_obj, "r")
+        # Initialize S3Checkpoint for reading data
+        self.checkpoint = S3Checkpoint(region=region)
 
-        # Create a custom path-like object that h5py can use
-        class S3Path:
-            def __init__(self, path):
-                self.path = path
+        # Initialize session metadata
+        self._initialize_metadata()
 
-            def __str__(self):
-                return self.path
+        # Set up window parameters
+        (self.left_padding, self.right_padding) = padding
+        assert self.left_padding >= 0 and self.right_padding >= 0
 
-        # Initialize EMGSessionData with our HDF5 file
-        session = EMGSessionData.__new__(EMGSessionData)
-        session.hdf5_path = S3Path(f"s3://{self.bucket}/{self.key}")  # type: ignore
-        session._file = h5_file
+        # Cache for frequently accessed data
+        self._window_cache: dict[tuple[int, int], np.ndarray] = {}
+        self._timestamps_cache: np.ndarray | None = None
 
-        emg2qwerty_group = session._file[EMGSessionData.HDF5_GROUP]
-        session.timeseries = emg2qwerty_group[EMGSessionData.TIMESERIES]
+    def _initialize_metadata(self) -> None:
+        """Initialize dataset metadata by reading only the necessary parts of the HDF5 file."""
+        with self.checkpoint.reader(f"s3://{self.bucket}/{self.key}") as reader:
+            with h5py.File(reader, "r") as h5file:
+                # Get the EMG2qwerty group
+                emg2qwerty_group = h5file[EMGSessionData.HDF5_GROUP]
 
-        # Load metadata
-        session.metadata = {}
-        for key, val in emg2qwerty_group.attrs.items():
-            if key in {EMGSessionData.KEYSTROKES, EMGSessionData.PROMPTS}:
-                session.metadata[key] = json.loads(val)
-            else:
-                session.metadata[key] = val
+                # Get the timeseries dataset shape without loading all data
+                timeseries = emg2qwerty_group[EMGSessionData.TIMESERIES]
+                self.session_length = len(timeseries)
 
-        return session
+                # Load metadata (small enough to keep in memory)
+                self.metadata = {}
+                for key, val in emg2qwerty_group.attrs.items():
+                    if key in {EMGSessionData.KEYSTROKES, EMGSessionData.PROMPTS}:
+                        self.metadata[key] = json.loads(val)
+                    else:
+                        self.metadata[key] = val
+
+                # Store the dataset dtype for later use
+                self.timeseries_dtype = timeseries.dtype
+
+                # Cache timestamps if they're not too large (for efficient slicing)
+                if self.session_length < 1_000_000:  # Only cache if reasonable size
+                    self._timestamps_cache = timeseries[EMGSessionData.TIMESTAMPS][:]
+                else:
+                    self._timestamps_cache = None
+
+    def __len__(self) -> int:
+        """Return the number of windows in the dataset."""
+        if self.window_length is None:
+            return 1  # Return the entire session
+        return int(max(0, (self.session_length - self.window_length) // self.stride + 1))
+
+    def _fetch_window(self, start_idx: int, end_idx: int) -> np.ndarray:
+        """Fetch a specific window of data from S3 efficiently."""
+        # Check if window is in cache
+        cache_key = (start_idx, end_idx)
+        if cache_key in self._window_cache:
+            return self._window_cache[cache_key]
+
+        # Read data from S3
+        with self.checkpoint.reader(f"s3://{self.bucket}/{self.key}") as reader:
+            with h5py.File(reader, "r") as h5file:
+                emg2qwerty_group = h5file[EMGSessionData.HDF5_GROUP]
+                timeseries = emg2qwerty_group[EMGSessionData.TIMESERIES]
+
+                # Read only the specific slice we need
+                window_data: np.ndarray = timeseries[start_idx:end_idx]
+
+        # Cache the window if it's small enough (< 1MB)
+        if window_data.nbytes < 1_000_000 and len(self._window_cache) < 100:
+            self._window_cache[cache_key] = window_data
+
+        return window_data
+
+    def _get_timestamps(self, start_idx: int, end_idx: int) -> np.ndarray:
+        """Get timestamps for a specific window, using cache if available."""
+        if self._timestamps_cache is not None:
+            return self._timestamps_cache[start_idx:end_idx]
+        else:
+            # Fetch only the timestamps column to minimize data transfer
+            with self.checkpoint.reader(f"s3://{self.bucket}/{self.key}") as reader:
+                with h5py.File(reader, "r") as h5file:
+                    emg2qwerty_group = h5file[EMGSessionData.HDF5_GROUP]
+                    timeseries = emg2qwerty_group[EMGSessionData.TIMESERIES]
+                    return timeseries[EMGSessionData.TIMESTAMPS][start_idx:end_idx]
+
+    def ground_truth(self, start_t: float, end_t: float) -> LabelData:
+        """Get ground truth labels for a specific time window."""
+        condition = self.metadata.get(EMGSessionData.CONDITION)
+
+        if condition == "on_keyboard":
+            return LabelData.from_keystrokes(
+                self.metadata[EMGSessionData.KEYSTROKES], start_t=start_t, end_t=end_t
+            )
+        else:
+            return LabelData.from_prompts(
+                self.metadata[EMGSessionData.PROMPTS], start_t=start_t, end_t=end_t
+            )
 
     def __getitem__(self, idx: int) -> tuple[torch.Tensor, torch.Tensor]:
-        """Get a window of EMG data, maintaining the same interface as WindowedEMGDataset."""
-        # Lazy init the EMGSessionData instance per worker
-        if not hasattr(self, "session"):
-            self.session = self._get_emg_session()
+        """Get a window of EMG data and corresponding labels."""
+        if self.window_length is None:
+            # Return the entire session
+            window = self._fetch_window(0, self.session_length)
+            emg = self.transform(window)
 
+            # Get timestamps for the entire session
+            timestamps = self._get_timestamps(0, self.session_length)
+            start_t = timestamps[0]
+            end_t = timestamps[-1]
+
+            # Get labels for the entire session
+            label_data = self.ground_truth(start_t, end_t)
+            labels = torch.as_tensor(label_data.labels)
+
+            return emg, labels
+
+        # Calculate window indices with jitter
         offset = idx * self.stride
 
-        # Randomly jitter the window offset
-        leftover = len(self.session) - (offset + self.window_length)
+        # Apply jitter if enabled
+        leftover = self.session_length - (offset + self.window_length)
         if leftover < 0:
             raise IndexError(f"Index {idx} out of bounds")
         if leftover > 0 and self.jitter:
             offset += np.random.randint(0, min(self.stride, leftover))
 
-        # Expand window to include contextual padding and fetch
+        # Expand window to include contextual padding
         window_start = max(offset - self.left_padding, 0)
-        window_end = offset + self.window_length + self.right_padding
-        window = self.session[window_start:window_end]
+        window_end = min(offset + self.window_length + self.right_padding, self.session_length)
 
-        # Extract EMG tensor corresponding to the window
+        # Fetch the window data
+        window = self._fetch_window(window_start, window_end)
+
+        # Apply transform to get tensor
         emg = self.transform(window)
         assert torch.is_tensor(emg)
 
-        # Extract labels corresponding to the original (un-padded) window
-        timestamps = window[EMGSessionData.TIMESTAMPS]
+        # Get timestamps for label alignment
+        timestamps = self._get_timestamps(window_start, window_end)
         start_t = timestamps[offset - window_start]
         end_t = timestamps[(offset + self.window_length - 1) - window_start]
-        label_data = self.session.ground_truth(start_t, end_t)
+
+        # Get labels for the window
+        label_data = self.ground_truth(start_t, end_t)
         labels = torch.as_tensor(label_data.labels)
 
         return emg, labels

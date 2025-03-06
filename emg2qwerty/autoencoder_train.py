@@ -108,6 +108,7 @@ def main(config: DictConfig):
     s3_config = None
     if config.dataset.get("s3_enabled", False):
         s3_config = {
+            "region": config.dataset.get("region", "us-east-1"),
             "aws_access_key_id": config.dataset.get("aws_access_key_id", None),
             "aws_secret_access_key": config.dataset.get("aws_secret_access_key", None),
             "endpoint_url": config.dataset.get("s3_endpoint_url", None),
@@ -126,6 +127,7 @@ def main(config: DictConfig):
         val_transform=_build_transform(config.transforms.val),
         test_transform=_build_transform(config.transforms.test),
         s3_config=s3_config,
+        stride=config.datamodule.get("stride", None),
         _convert_="object",
     )
 
@@ -145,10 +147,11 @@ def main(config: DictConfig):
     if config.train:
         # Check if a past checkpoint exists to resume training from
         checkpoint_dir = Path.cwd().joinpath("checkpoints")
+        log.info(f"Checkpoint directory: {checkpoint_dir}")
         resume_from_checkpoint = utils.get_last_checkpoint(checkpoint_dir)
         if resume_from_checkpoint is not None:
             log.info(f"Resuming training from checkpoint {resume_from_checkpoint}")
-
+        log.info(f"Resume from checkpoint: {resume_from_checkpoint}")
         # Train
         trainer.fit(module, datamodule, ckpt_path=resume_from_checkpoint)
 

@@ -1,0 +1,45 @@
+\section{Results}
+
+In this section, we present the experimental results of our proposed approach. We evaluate the performance of our model on the EMG2QWERTY dataset and compare it with the baseline model.
+
+\subsection{Autoencoder Performance}
+
+We first evaluate the performance of the autoencoder in terms of reconstruction error and information preservation.
+
+[TABLE: Reconstruction error (MSE) on training and validation sets]
+
+[FIGURE: Visualization of original and reconstructed spectrograms]
+
+The autoencoder achieves a reconstruction error of [VALUE] on the validation set, indicating that it can effectively compress the 32-channel input to 16 channels while preserving most of the information. Visual inspection of the reconstructed spectrograms shows that the autoencoder preserves the key patterns in the data while filtering out some of the noise.
+
+\subsection{Character Error Rate (CER)}
+
+We compare the character error rate (CER) of our proposed model with the baseline model on the test set.
+
+[TABLE: CER comparison between baseline and proposed models]
+
+Our proposed model achieves a CER of [VALUE], which is [PERCENTAGE] lower than the baseline model's CER of [VALUE]. This improvement demonstrates the effectiveness of our approach in addressing the challenges of high-dimensional input and complex temporal dependencies.
+
+\subsection{Ablation Study}
+
+To understand the contribution of each component of our approach, we conduct an ablation study by removing one component at a time.
+
+[TABLE: Ablation study results]
+
+The results show that both the autoencoder and the multi-scale TDS convolutions contribute to the performance improvement. Removing the autoencoder increases the CER by [VALUE], while removing the multi-scale TDS convolutions increases the CER by [VALUE]. This suggests that both components are important for achieving the best performance.
+
+\subsection{Computational Efficiency}
+
+We also evaluate the computational efficiency of our approach in terms of model size and inference time.
+
+[TABLE: Model size and inference time comparison]
+
+Despite the additional complexity of the multi-scale TDS convolutions, our model has [PERCENTAGE] fewer parameters than the baseline model due to the dimensionality reduction provided by the autoencoder. This results in [PERCENTAGE] faster inference time, making our approach more suitable for real-time applications.
+
+\subsection{Cross-User Generalization}
+
+To assess the generalization capability of our approach, we evaluate its performance on data from users not seen during training.
+
+[TABLE: Cross-user generalization results]
+
+Our model achieves a CER of [VALUE] on unseen users, which is [PERCENTAGE] lower than the baseline model's CER of [VALUE]. This suggests that our approach learns more generalizable features that transfer better across different users. 

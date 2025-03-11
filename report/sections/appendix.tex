@@ -1,0 +1,116 @@
+\section{Implementation Details}
+
+\subsection{Autoencoder Architecture}
+
+The detailed architecture of the EMGSpecAutoEncoder is as follows:
+
+\begin{table}[h]
+\centering
+\caption{EMGSpecAutoEncoder Architecture}
+\begin{tabular}{lll}
+\toprule
+Layer & Output Shape & Parameters \\
+\midrule
+\multicolumn{3}{c}{Encoder} \\
+\midrule
+Input & (B, 32, T, F) & - \\
+Conv2D (3×3, 32 filters) & (B, 32, T, F) & 9,248 \\
+ReLU & (B, 32, T, F) & - \\
+Conv2D (3×3, 24 filters) & (B, 24, T, F) & 6,936 \\
+ReLU & (B, 24, T, F) & - \\
+Conv2D (3×3, 16 filters) & (B, 16, T, F) & 3,472 \\
+ReLU & (B, 16, T, F) & - \\
+\midrule
+\multicolumn{3}{c}{Decoder} \\
+\midrule
+Conv2D (3×3, 24 filters) & (B, 24, T, F) & 3,480 \\
+ReLU & (B, 24, T, F) & - \\
+Conv2D (3×3, 32 filters) & (B, 32, T, F) & 6,944 \\
+ReLU & (B, 32, T, F) & - \\
+Conv2D (3×3, 32 filters) & (B, 32, T, F) & 9,248 \\
+Sigmoid & (B, 32, T, F) & - \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Where B is the batch size, T is the time dimension, and F is the frequency dimension.
+
+\subsection{Multi-Scale TDS Convolution Block}
+
+The detailed implementation of the MultiScaleTDSConv2dBlock is as follows:
+
+\begin{algorithm}
+\caption{MultiScaleTDSConv2dBlock Forward Pass}
+\begin{algorithmic}[1]
+\STATE \textbf{Input:} x (input tensor), kernel\_width, dropout\_prob
+\STATE \textbf{Output:} y (output tensor)
+\STATE residual = x
+\STATE x = LayerNorm(x)
+\STATE small\_kernel = kernel\_width / 2
+\STATE large\_kernel = kernel\_width * 2
+\STATE // Small kernel branch
+\STATE x\_small = DepthwiseConv2d(x, kernel\_size=(small\_kernel, 1))
+\STATE x\_small = PointwiseConv2d(x\_small)
+\STATE // Medium kernel branch
+\STATE x\_medium = DepthwiseConv2d(x, kernel\_size=(kernel\_width, 1))
+\STATE x\_medium = PointwiseConv2d(x\_medium)
+\STATE // Large kernel branch
+\STATE x\_large = DepthwiseConv2d(x, kernel\_size=(large\_kernel, 1))
+\STATE x\_large = PointwiseConv2d(x\_large)
+\STATE // Concatenate features from all branches
+\STATE x\_concat = Concatenate([x\_small, x\_medium, x\_large])
+\STATE // Merge back to original channel dimension
+\STATE x\_merged = Conv2d(x\_concat, kernel\_size=1)
+\STATE x\_merged = Dropout(x\_merged, p=dropout\_prob)
+\STATE // Add residual connection
+\STATE y = x\_merged + residual
+\STATE \textbf{return} y
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Training Hyperparameters}
+
+The hyperparameters used for training the autoencoder and the main model are as follows:
+
+\begin{table}[h]
+\centering
+\caption{Training Hyperparameters}
+\begin{tabular}{lll}
+\toprule
+Hyperparameter & Autoencoder & Main Model \\
+\midrule
+Optimizer & Adam & Adam \\
+Learning rate & 1e-3 & 1e-3 \\
+Batch size & 64 & 32 \\
+Weight decay & 1e-5 & 1e-5 \\
+Dropout & 0.1 & 0.2 \\
+Training epochs & 100 & 100 \\
+Early stopping patience & 10 & 15 \\
+Learning rate scheduler & ReduceLROnPlateau & CosineAnnealing \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Additional Results}
+
+\subsection{Learning Curves}
+
+[FIGURE: Learning curves showing training and validation loss for the autoencoder]
+
+[FIGURE: Learning curves showing training and validation CER for the main model]
+
+\subsection{Feature Visualization}
+
+[FIGURE: t-SNE visualization of the bottleneck features colored by character]
+
+\subsection{Error Analysis}
+
+[TABLE: Most common character confusions]
+
+[FIGURE: Confusion matrix for character prediction]
+
+\subsection{User-Specific Performance}
+
+[TABLE: CER breakdown by user]
+
+[FIGURE: Bar chart comparing baseline and proposed model performance across users] 

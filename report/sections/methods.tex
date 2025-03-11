@@ -1,0 +1,113 @@
+\section{Methods}
+
+Our approach builds upon the EMG2QWERTY framework, which uses a temporal depth-separable (TDS) convolutional architecture with connectionist temporal classification (CTC) loss to predict keyboard typing from sEMG signals. We introduce two key modifications to this framework: an autoencoder for dimensionality reduction and multi-scale TDS convolutions.
+
+\subsection{Dataset and Preprocessing}
+
+We use the EMG2QWERTY dataset, which contains sEMG recordings from participants typing on a QWERTY keyboard. The dataset includes recordings from 16 electrodes placed on the forearm, capturing muscle activity during typing. The raw sEMG signals are preprocessed to extract spectrograms with 2 frequency bands per electrode, resulting in 32-channel input features.
+
+For our experiments, we use a subset of the original dataset, focusing on the 8 participants chosen for fine-tuning in the original EMG2QWERTY paper. The decision to train on a subset of the dataset was made to reduce the computational cost of the experiments, due to the large size of the dataset and the need to train multiple models on a limited computational and time budget. The data is split into training, validation, and test sets from the original dataset.
+
+\subsection{Autoencoder for Dimensionality Reduction}
+
+To address the challenge of high-dimensional input features, we introduce an autoencoder-based dimensionality reduction technique. The autoencoder compresses the 32-channel EMG spectrograms to a 16-channel bottleneck representation while preserving essential information.
+
+\subsubsection{Architecture}
+
+The EMGSpecAutoEncoder consists of an encoder and a decoder, both implemented using convolutional neural networks. The encoder compresses the input spectrograms to a lower-dimensional representation, while the decoder reconstructs the original input from this compressed representation.
+
+The encoder architecture is as follows:
+\begin{itemize}
+    \item Input: 32-channel EMG spectrograms (2 bands × 16 electrodes)
+    \item Conv2D: 32 filters, 3×3 kernel, padding=1, followed by BatchNorm2d and ReLU
+    \item Conv2D: 16 filters, 3×3 kernel, padding=1, followed by BatchNorm2d and ReLU (bottleneck)
+\end{itemize}
+
+The decoder architecture is symmetric to the encoder:
+\begin{itemize}
+    \item Input: 16-channel bottleneck representation
+    \item Conv2D: 32 filters, 3×3 kernel, padding=1, followed by BatchNorm2d and ReLU
+    \item Conv2D: 32 filters, 3×3 kernel, padding=1 (output)
+\end{itemize}
+
+The autoencoder preserves the spatial relationships in the data through 2D convolutions, maintaining the frequency dimension while compressing the channel dimension.
+
+\subsubsection{Training}
+
+The autoencoder is trained separately from the main model using mean squared error (MSE) loss to minimize the reconstruction error. We use the Adam optimizer with a learning rate of 1e-3 and train for multiple epochs with early stopping based on validation loss.
+
+Once trained, we use only the encoder part of the autoencoder as a preprocessing step for the main model, reducing the input dimensionality from 32 to 16 channels. This encoder can be either frozen or fine-tuned during the main model training, depending on the experimental configuration.
+
+\subsection{Multi-Scale TDS Convolutions}
+
+To better capture temporal dependencies at multiple scales, we replace the standard TDS convolution blocks in the original model with multi-scale TDS convolution blocks.
+
+\subsubsection{Architecture}
+
+The MultiScaleTDSConv2dBlock extends the standard TDS block with parallel convolutions using different kernel sizes. Each block consists of:
+
+\begin{itemize}
+    \item Three parallel branches with different kernel widths:
+          \begin{itemize}
+              \item Small kernel (kernel\_width/2): Captures local, fine-grained patterns
+              \item Medium kernel (kernel\_width): Captures medium-range dependencies
+              \item Large kernel (kernel\_width*2): Captures longer-range dependencies
+          \end{itemize}
+    \item Each branch applies a 2D convolution with the specified kernel size
+    \item Features from all scales are concatenated along the channel dimension
+    \item A 1×1 convolution merges the multi-scale features back to the original channel dimension
+    \item ReLU activation is applied to the merged features
+    \item A residual connection adds the input to the processed features
+    \item Layer normalization is applied to the final output
+\end{itemize}
+
+This multi-scale approach allows the model to capture patterns at different temporal resolutions simultaneously, improving its ability to model the complex temporal dependencies in typing movements.
+
+\subsection{Combined Model}
+
+Our final model, TDSConvCTCWithAutoencoderModule, combines both modifications, using the autoencoder for dimensionality reduction and the multi-scale TDS convolutions for temporal modeling. The overall architecture is as follows:
+
+\begin{enumerate}
+    \item Input: 32-channel EMG spectrograms (T, N, 2, 16, freq)
+    \item Autoencoder encoder: Reduces dimensionality to 16 channels
+    \item SpectrogramNorm: Normalizes the reduced spectrograms
+    \item MultiBandRotationInvariantMLP: Processes each band independently with rotation invariance
+    \item Flatten: Combines features from both bands
+    \item TDSConvEncoder with multi-scale convolutions: Processes the flattened features
+    \item Linear classifier: Maps to character probabilities
+    \item LogSoftmax: Produces log probabilities for CTC loss
+    \item CTC decoder: Converts probabilities to character sequences
+\end{enumerate}
+
+The MultiBandRotationInvariantMLP is a key component that processes each frequency band independently while providing rotation invariance. It applies an MLP to the electrode channels after shifting/rotating them by different offsets, then pools over all outputs. This helps the model generalize across different electrode placements and orientations.
+
+\subsection{Architectural Considerations}
+
+We deliberately chose the TDS convolutional architecture with multi-scale extensions rather than recurrent neural networks (RNNs) or transformer models for several important reasons:
+
+\begin{itemize}
+    \item \textbf{Temporal locality}: EMG signals for typing have a strong local temporal dependency where each keystroke's output primarily depends on the immediate past (milliseconds to a second). Unlike speech or language where long-range dependencies are critical, typing EMG signals require less global context.
+
+    \item \textbf{Computational efficiency}: Transformers, while powerful for modeling global dependencies, have quadratic complexity with sequence length due to their self-attention mechanism. This makes them computationally expensive for real-time EMG signal processing and unnecessarily complex for this task.
+
+    \item \textbf{Parallelizability}: Convolutional approaches can be highly parallelized, unlike RNNs which process data sequentially. This provides significant advantages for both training speed and real-time inference.
+
+    \item \textbf{Multi-scale feature extraction}: Our multi-scale TDS approach captures patterns at different temporal resolutions, addressing a key limitation of standard convolutional models while maintaining computational efficiency. This allows us to detect both rapid keystroke transitions and slower typing patterns without the overhead of global attention.
+
+    \item \textbf{Fixed receptive field}: The fixed receptive field of our convolutional approach is well-suited to EMG signal processing, where the relevant context for keystroke prediction is relatively consistent. The multi-scale aspect provides adaptability while maintaining the benefits of locality.
+\end{itemize}
+
+We believe that the global attention mechanism of transformers would provide minimal benefit for this task while introducing unnecessary computational overhead. Similarly, while RNNs could model the temporal dependencies, they face challenges with vanishing gradients and sequential processing that make them less suitable than our parallelizable convolutional approach. These architectural choices allow our model to efficiently process EMG signals while maintaining high prediction accuracy.
+
+\subsection{Training and Evaluation}
+
+We train our model using the PyTorch Lightning framework with the following settings:
+\begin{itemize}
+    \item Optimizer: Adam with learning rate 1e-3
+    \item Learning rate scheduler: Linear warmup followed by cosine annealing
+    \item Batch size: 32
+    \item Training epochs: 150 with early stopping based on validation loss
+    \item Loss function: CTC loss with blank token
+\end{itemize}
+
+For evaluation, we use character error rate (CER) as the primary metric, which measures the edit distance between the predicted and ground truth character sequences. We also report inference time to assess the practical utility of our approach.

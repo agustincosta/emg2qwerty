@@ -1,0 +1,14 @@
+---
+description: Rules for writing the report
+globs: *.tex
+---
+# Writeup considerations
+In the writeup, there should be the following sections:
+1. Abstract – A brief description of what you did in the project and the results observed.
+2. Introduction – Do not use the introduction to formulate the general problem of sEMG decoding, as we are all familiar with the problem. Instead, use the introduction to set up and motivate the question and techniques you pursued. For example, if you focused on minimizing CER in a single subject, or maximized generalization performance using minimal amounts of data, you may motivate why this is important in the introduction.
+3. Methods – State the methods of your project (such as the architectures, data preprocessing, or other techniques used).
+4. Results – State the results of your experiments.
+5. Discussion – Discuss insights gained from your project, e.g., what resulted in good performance, and any hypotheses for why this might be the case.
+6. References – List references used in your writeup.
+
+Use the NeurIPS 2024 format in LaTeX

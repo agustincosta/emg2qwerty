@@ -1,3 +1,5 @@
+[2025-03-12 01:01:20,814][__main__][INFO] - 
+Config:
 user: joined_users
 dataset:
   test:
@@ -281,3 +283,8 @@ callbacks:
   patience: 10
   min_delta: 0.01
   verbose: true
+
+[2025-03-12 01:01:20,846][__main__][INFO] - Instantiating AutoencoderModule
+[2025-03-12 01:01:20,855][__main__][INFO] - Loading module from checkpoint checkpoints/autoencoder_lr_0.0001_intermediate_24/last.ckpt
+[2025-03-12 01:01:20,862][__main__][INFO] - Instantiating LightningDataModule {'_target_': 'emg2qwerty.lightning.WindowedEMGDataModule', 'window_length': 8000, 'padding': [1800, 200]}
+[2025-03-12 01:01:20,947][__main__][INFO] - Using model: autoencoder_lr_0.0001_intermediate_24

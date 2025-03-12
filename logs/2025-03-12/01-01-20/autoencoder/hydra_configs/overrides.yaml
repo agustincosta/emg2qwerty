@@ -1,0 +1,2 @@
+- user=joined_users
+- checkpoint=checkpoints/autoencoder_lr_0.0001_intermediate_24/last.ckpt

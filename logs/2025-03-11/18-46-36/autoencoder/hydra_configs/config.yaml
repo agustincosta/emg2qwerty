@@ -245,7 +245,7 @@ seed: 1501
 batch_size: 32
 num_workers: 4
 train: true
-checkpoint: checkpoints/autoencoder_lr_0.0001_intermediate_24/last.ckpt
+checkpoint: null
 monitor_metric: val/loss
 monitor_mode: min
 reduced: false

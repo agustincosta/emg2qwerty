@@ -18,6 +18,7 @@ autoencoder:
   in_channels: 32 # Number of input EMG channels
   bottleneck_channels: 16 # Number of channels in the bottleneck layer
   lr: 0.0001 # Learning rate for the autoencoder
+  intermediate_channels: 24 # Number of channels in the intermediate layer
 
 # Data module configuration
 datamodule:

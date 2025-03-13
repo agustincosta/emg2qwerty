@@ -361,6 +361,8 @@ class EMGSpecAutoEncoder(nn.Module):
     Args:
         in_channels (int): Number of input channels (bands * electrode_channels)
         bottleneck_channels (int): Number of channels in the bottleneck representation
+        intermediate_channels (int, optional): Number of channels in the intermediate layer.
+            If None, no intermediate layer is used (direct connection). Default: None
         freq_dim (int): Dimension of the frequency bins
     """
 
@@ -368,30 +370,46 @@ class EMGSpecAutoEncoder(nn.Module):
         self,
         in_channels: int = 32,  # 2 bands * 16 electrode channels
         bottleneck_channels: int = 16,
+        intermediate_channels: int | None = None,  # Optional intermediate layer
         freq_dim: int = 0,  # Will be inferred from input if 0
     ) -> None:
         super().__init__()
         self.in_channels = in_channels
         self.bottleneck_channels = bottleneck_channels
+        self.intermediate_channels = intermediate_channels
         self.freq_dim = freq_dim
 
-        # Encoder: compress from in_channels to bottleneck_channels
-        self.encoder = nn.Sequential(
-            nn.Conv2d(in_channels, 32, kernel_size=3, padding=1),
-            nn.BatchNorm2d(32),
-            nn.ReLU(),
-            nn.Conv2d(32, bottleneck_channels, kernel_size=3, padding=1),
-            nn.BatchNorm2d(bottleneck_channels),
-            nn.ReLU(),
-        )
+        # Create encoder based on whether intermediate_channels is provided
+        if intermediate_channels is None:
+            # Simple encoder: direct connection from in_channels to bottleneck_channels
+            self.encoder = nn.Sequential(
+                nn.Conv2d(in_channels, bottleneck_channels, kernel_size=3, padding=1),
+                nn.BatchNorm2d(bottleneck_channels),
+                nn.ReLU(),
+            )
 
-        # Decoder: reconstruct from bottleneck_channels to in_channels
-        self.decoder = nn.Sequential(
-            nn.Conv2d(bottleneck_channels, 32, kernel_size=3, padding=1),
-            nn.BatchNorm2d(32),
-            nn.ReLU(),
-            nn.Conv2d(32, in_channels, kernel_size=3, padding=1),
-        )
+            # Simple decoder: direct connection from bottleneck_channels to in_channels
+            self.decoder = nn.Sequential(
+                nn.Conv2d(bottleneck_channels, in_channels, kernel_size=3, padding=1),
+            )
+        else:
+            # Encoder with intermediate layer
+            self.encoder = nn.Sequential(
+                nn.Conv2d(in_channels, intermediate_channels, kernel_size=3, padding=1),
+                nn.BatchNorm2d(intermediate_channels),
+                nn.ReLU(),
+                nn.Conv2d(intermediate_channels, bottleneck_channels, kernel_size=3, padding=1),
+                nn.BatchNorm2d(bottleneck_channels),
+                nn.ReLU(),
+            )
+
+            # Decoder with intermediate layer
+            self.decoder = nn.Sequential(
+                nn.Conv2d(bottleneck_channels, intermediate_channels, kernel_size=3, padding=1),
+                nn.BatchNorm2d(intermediate_channels),
+                nn.ReLU(),
+                nn.Conv2d(intermediate_channels, in_channels, kernel_size=3, padding=1),
+            )
 
     def forward(self, inputs: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
         """

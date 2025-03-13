@@ -284,11 +284,19 @@ class TDSConvCTCModule(pl.LightningModule):
 
 
 class AutoencoderModule(pl.LightningModule):
-    def __init__(self, in_channels=32, bottleneck_channels=16, lr=1e-3):
+    def __init__(
+        self,
+        in_channels=32,
+        bottleneck_channels=16,
+        lr=1e-3,
+        intermediate_channels=None,
+    ):
         super().__init__()
         self.save_hyperparameters()
         self.autoencoder = EMGSpecAutoEncoder(
-            in_channels=in_channels, bottleneck_channels=bottleneck_channels
+            in_channels=in_channels,
+            bottleneck_channels=bottleneck_channels,
+            intermediate_channels=intermediate_channels,
         )
         # Metrics - initialize an empty metric collection
         metrics = MetricCollection([])

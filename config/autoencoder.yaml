@@ -12,13 +12,13 @@ checkpoint: null
 monitor_metric: val/loss # Changed from CER to loss for autoencoder
 monitor_mode: min
 reduced: False
+model_name: autoencoder_lr_0.0001_new
 
 # Autoencoder specific configurations
 autoencoder:
   in_channels: 32 # Number of input EMG channels
   bottleneck_channels: 16 # Number of channels in the bottleneck layer
   lr: 0.0001 # Learning rate for the autoencoder
-  intermediate_channels: 24 # Number of channels in the intermediate layer
 
 # Data module configuration
 datamodule:

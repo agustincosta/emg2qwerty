@@ -1,0 +1,2 @@
+- model=tds_conv_ctc_autoencoder_tiny
+- model_name=model-autoencoder-tiny-new

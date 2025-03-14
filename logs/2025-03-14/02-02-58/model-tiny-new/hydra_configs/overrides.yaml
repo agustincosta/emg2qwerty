@@ -1,0 +1,3 @@
+- model=tds_conv_ctc_tiny
+- checkpoint=checkpoints/model-tiny-new/model-tiny-new-epochepoch_28-val_metricval_metric_0.0000.ckpt
+- model_name=model-tiny-new

@@ -1,7 +1,7 @@
 defaults:
   - user: joined_users
   - transforms: log_spectrogram
-  - model: tds_conv_ctc_autoencoder_tiny
+  - model: tds_conv_ctc_tiny
   - optimizer: adam
   - lr_scheduler: linear_warmup_cosine_annealing
   - decoder: ctc_greedy
@@ -16,6 +16,7 @@ checkpoint: null # Optional path to checkpoint file
 monitor_metric: val/CER
 monitor_mode: min
 reduced: False
+model_name: model-tiny-new
 
 trainer:
   accelerator: gpu
@@ -27,7 +28,7 @@ trainer:
 callbacks:
   - _target_: pytorch_lightning.callbacks.LearningRateMonitor
   - _target_: pytorch_lightning.callbacks.ModelCheckpoint
-    dirpath: ${hydra:runtime.output_dir}/checkpoints/model-autoencoder_24-tiny
+    dirpath: ${hydra:runtime.output_dir}/checkpoints/${model_name}
     monitor: ${monitor_metric}
     mode: ${monitor_mode}
     save_last: True
@@ -44,7 +45,7 @@ dataset:
 
 hydra:
   run:
-    dir: logs/${now:%Y-%m-%d}/${now:%H-%M-%S}/model-autoencoder_24-tiny
+    dir: logs/${now:%Y-%m-%d}/${now:%H-%M-%S}/${model_name}
   sweep:
     dir: ${hydra.run.dir}
     subdir: job${hydra.job.num}_${hydra.job.override_dirname}

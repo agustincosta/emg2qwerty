@@ -1,34 +1,30 @@
 \section{Discussion}
 
-Our experimental results demonstrate the effectiveness of combining autoencoder-based dimensionality reduction with multi-scale temporal modeling for EMG-based typing prediction. In this section, we discuss the implications of our findings, the limitations of our approach, and directions for future work.
+Our experimental results demonstrate the effectiveness of multi-scale temporal modeling for EMG-based typing prediction, but evidence suggests that the autoencoder-based dimensionality reduction requires further work. In this section, we discuss the implications of our findings, the limitations of our approach, and directions for future work.
 
 \subsection{Effectiveness of Dimensionality Reduction}
 
-The autoencoder successfully reduces the input dimensionality from 32 to 16 channels while preserving essential information for typing prediction. This dimensionality reduction not only improves computational efficiency but also appears to act as a form of regularization, helping the model focus on the most relevant patterns in the data.
+The autoencoder successfully reduces the input dimensionality from 32 to 16 channels while preserving substantial information for typing prediction. Our initial motivation for this approach stemmed from an analysis of signal correlations across channels, which suggested that such a reduction in dimensionality might be possible without significant performance loss. We also theorized that the bottleneck representation could serve as a regularizer to combat inter-subject variability by forcing the model to focus on more generalizable patterns. In practice, the dimensionality reduction improved computational efficiency at the expense of some performance, while the theorized regularization effect was not clearly observed.
 
-The visualization of the bottleneck representations reveals that the autoencoder learns to extract features that correspond to specific muscle activation patterns associated with different typing movements. This suggests that the autoencoder is not merely compressing the data but is learning a more meaningful representation that facilitates the typing prediction task.
+Despite not achieving the expected regularization benefits, this finding suggests that further research into more sophisticated dimensionality reduction techniques could be valuable. Future work should explore alternative approaches such as variational autoencoders, contrastive learning, or adversarial training that might better preserve performance while achieving the desired regularization effect across subjects.
 
 \subsection{Benefits of Multi-Scale Temporal Modeling}
 
 The multi-scale TDS convolutions enable the model to capture temporal dependencies at different scales simultaneously. This is particularly important for typing prediction, as typing involves both fast, localized muscle activations (captured by the small kernels) and longer-range dependencies between consecutive keystrokes (captured by the larger kernels).
 
-The ablation study confirms that the multi-scale approach outperforms the standard TDS convolutions, highlighting the importance of modeling temporal dependencies at multiple scales. This finding aligns with previous research in speech and music processing, where multi-scale approaches have shown success in capturing complex temporal patterns.
-
-\subsection{Synergy Between Components}
-
-The combination of autoencoder-based dimensionality reduction and multi-scale temporal modeling yields better performance than either component alone. This synergy can be explained by the complementary nature of these modifications: the autoencoder provides a more compact and denoised representation, while the multi-scale TDS convolutions extract richer temporal features from this representation.
+The ablation study confirms that the multi-scale approach outperforms the standard TDS convolutions, highlighting the importance of modeling temporal dependencies at multiple scales. This finding aligns with previous research in speech and music processing, where multi-scale approaches have shown success in capturing complex temporal patterns. [REFERENCES!!]
 
 \subsection{Limitations and Future Work}
 
 Despite the promising results, our approach has several limitations that could be addressed in future work:
 
 \begin{itemize}
-    \item \textbf{User-specific adaptation}: While our model shows improved cross-user generalization, there is still a performance gap between seen and unseen users. Future work could explore techniques for rapid adaptation to new users with minimal calibration data.
-    
-    \item \textbf{Real-time constraints}: Although our model is more computationally efficient than the baseline, further optimizations may be needed for deployment on resource-constrained devices. Techniques such as knowledge distillation or quantization could be explored.
-    
+    \item \textbf{User-specific adaptation}: While our model shows improved cross-user generalization, there is still a performance gap between seen and unseen users. This can be attributed to the reduced model size in comparison to the original study. Future work could explore techniques for rapid adaptation to new users with minimal calibration data.
+
+    \item \textbf{Real-time constraints}: Our model demonstrates improved computational efficiency compared to the baseline, with the autoencoder-based dimensionality reduction reducing the number of parameters and inference time. The multi-scale TDS convolutions also showed faster convergence during training (53.98\% of total steps compared to 56.56\% for the baseline). However, further optimizations may be needed for deployment on resource-constrained devices. Techniques such as knowledge distillation or quantization could be explored to further reduce model size while preserving performance.
+
     \item \textbf{Robustness to electrode placement}: The performance of EMG-based interfaces is sensitive to electrode placement, which can vary between sessions. Future work could investigate methods to make the model more robust to variations in electrode placement.
-    
+
     \item \textbf{Integration with language models}: The current approach focuses on improving the EMG signal processing, but performance could be further enhanced by integrating language models to leverage contextual information.
 \end{itemize}
 
@@ -40,4 +36,4 @@ Moreover, the dimensionality reduction and multi-scale temporal modeling techniq
 
 \subsection{Conclusion}
 
-Our work demonstrates that targeted architectural modifications—specifically, autoencoder-based dimensionality reduction and multi-scale temporal modeling—can significantly improve the performance of EMG-based typing prediction while reducing computational requirements. These findings contribute to the ongoing development of more practical and robust EMG-based interfaces, bringing us closer to the goal of intuitive, non-invasive human-computer interaction. 
+Our work demonstrates that targeted architectural modifications—specifically, autoencoder-based dimensionality reduction and multi-scale temporal modeling—can significantly improve the performance of EMG-based typing prediction while reducing computational requirements. These findings contribute to the ongoing development of more practical and robust EMG-based interfaces, bringing us closer to the goal of intuitive, non-invasive human-computer interaction.

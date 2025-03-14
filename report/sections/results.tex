@@ -4,35 +4,140 @@ In this section, we present the experimental results of our proposed approach. W
 
 \subsection{Autoencoder Performance}
 
-We first evaluate the performance of the autoencoder in terms of reconstruction error and information preservation.
+We first evaluate the performance of the autoencoder in terms of reconstruction error and information preservation. The autoencoder was trained for 60 epochs with a learning rate of 0.0001. The results are shown in Table \ref{tab:autoencoder_mse}.
 
-[TABLE: Reconstruction error (MSE) on training and validation sets]
+\begin{table}[h]
+    \centering
+    \caption{Autoencoder Reconstruction Error (MSE)}
+    \begin{tabular}{lc}
+        \hline
+        \textbf{Dataset Split} & \textbf{Mean Squared Error (MSE)} \\
+        \hline
+        Training               & 0.1889                            \\
+        Validation             & 0.1517                            \\
+        Test                   & 0.1518                            \\
+        \hline
+    \end{tabular}
+    \label{tab:autoencoder_mse}
+\end{table}
 
-[FIGURE: Visualization of original and reconstructed spectrograms]
+A deeper version of the autoencoder was trained with an intermediate layer of 24 channels, with a slight decrease in reconstruction error. The shallow version of the autoencoder was used for the main experiments to reduce the number of parameters. The results are shown in Table \ref{tab:autoencoder_mse_deep}.
 
-The autoencoder achieves a reconstruction error of [VALUE] on the validation set, indicating that it can effectively compress the 32-channel input to 16 channels while preserving most of the information. Visual inspection of the reconstructed spectrograms shows that the autoencoder preserves the key patterns in the data while filtering out some of the noise.
+\begin{table}[h]
+    \centering
+    \caption{Autoencoder Reconstruction Error (MSE)}
+    \begin{tabular}{lc}
+        \hline
+        \textbf{Dataset Split} & \textbf{Mean Squared Error (MSE)} \\
+        \hline
+        Training               & 0.1669                            \\
+        Validation             & 0.1403                            \\
+        Test                   & 0.1395                            \\
+        \hline
+    \end{tabular}
+    \label{tab:autoencoder_mse_deep}
+\end{table}
+
+\begin{figure}[h]
+    \centering
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[height=7cm,width=\textwidth]{../output/spectrogram_comparison_0_reduced.png}
+        \caption{Visualization of original and reconstructed spectrograms for 16 channels of a random data sample}
+        \label{fig:autoencoder_reconstruction}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[height=7cm, width=0.8\textwidth]{../output/reconstruction_error_0_reduced.png}
+        \caption{Visualization of the reconstruction error for the same random data sample}
+        \label{fig:autoencoder_error}
+    \end{minipage}
+\end{figure}
+
+The autoencoder achieves a reconstruction error of 0.1517 on the validation set, indicating that it can reasonably compress the 32-channel input to 16 channels while preserving most of the information. Visual inspection of the reconstructed spectrograms in Figure \ref{fig:autoencoder_reconstruction} shows that the autoencoder preserves the key patterns in the data while filtering out some of the noise. This is better visualized in Figure \ref{fig:autoencoder_error}, where the reconstruction error is shown for a random data sample.
 
 \subsection{Character Error Rate (CER)}
 
+We first evaluate the baseline performance of the smaller model without any of the proposed modifications. The results are shown in Table \ref{tab:baseline_cer}.
+
+\begin{table}[h]
+    \centering
+    \caption{Baseline Character Error Rate (CER)}
+    \begin{tabular}{lcc}
+        \hline
+        \textbf{Dataset Split} & \textbf{CER (\%)} & \textbf{Loss} \\
+        \hline
+        Validation             & 22.19             & 0.8074        \\
+        Test                   & 17.00             & 0.6190        \\
+        \hline
+    \end{tabular}
+    \label{tab:baseline_cer}
+\end{table}
+
 We compare the character error rate (CER) of our proposed model with the baseline model on the test set.
 
-[TABLE: CER comparison between baseline and proposed models]
+\begin{table}[h]
+    \centering
+    \caption{Proposed Model Character Error Rate (CER)}
+    \begin{tabular}{lcc}
+        \hline
+        \textbf{Dataset Split} & \textbf{CER (\%)} & \textbf{Loss} \\
+        \hline
+        Validation             & 30.10             & 0.9835        \\
+        Test                   & 25.90             & 0.8386        \\
+        \hline
+    \end{tabular}
+    \label{tab:proposed_model_cer}
+\end{table}
 
-Our proposed model achieves a CER of [VALUE], which is [PERCENTAGE] lower than the baseline model's CER of [VALUE]. This improvement demonstrates the effectiveness of our approach in addressing the challenges of high-dimensional input and complex temporal dependencies.
+Our proposed model achieves a CER of 25.90\% on the test set, which is 8.29\% higher than the baseline model's CER of 17.00\%. The results are shown in Table \ref{tab:proposed_model_cer}. These results can be attributed to the fact that the autoencoder is not able to perfectly reconstruct the original signal, which introduces some noise into the system. This is further evidenced by the ablation study in the following section.
 
 \subsection{Ablation Study}
 
-To understand the contribution of each component of our approach, we conduct an ablation study by removing one component at a time.
+To understand the contribution of each component of our approach, we conduct an ablation study by removing one component at a time. The results are shown in Table \ref{tab:ablation_study}.
 
-[TABLE: Ablation study results]
+\begin{table}[h]
+    \centering
+    \caption{Ablation Study Results}
+    \begin{tabular}{lccc}
+        \hline
+        \textbf{Model Configuration}  & \textbf{Test CER (\%)} & \textbf{Test Loss} \\
+        \hline
+        Baseline (Tiny Model)         & 17.00                  & 0.6190             \\
+        Autoencoder Only              & 25.90                  & 0.8386             \\
+        Multi-scale Convolutions Only & 15.25                  & 0.6506             \\
+        Both (Proposed Model)         & 25.90                  & 0.8386             \\
+        \hline
+    \end{tabular}
+    \label{tab:ablation_study}
+\end{table}
 
-The results show that both the autoencoder and the multi-scale TDS convolutions contribute to the performance improvement. Removing the autoencoder increases the CER by [VALUE], while removing the multi-scale TDS convolutions increases the CER by [VALUE]. This suggests that both components are important for achieving the best performance.
+The results show that the multi-scale TDS convolutions alone improve performance over the baseline, reducing the CER from 17.00\% to 15.25\%. This improvement can be attributed to the model's enhanced ability to capture temporal patterns at different scales, which is particularly beneficial for EMG signals where keystroke patterns vary in duration. The multi-scale approach allows the model to simultaneously detect both rapid finger movements (short-term patterns) and slower typing rhythms (longer-term patterns).
+
+In contrast, the autoencoder-based dimensionality reduction negatively impacts performance, increasing the CER to 25.90\%. This suggests that the compression of the 32-channel EMG spectrograms to 16 channels results in loss of discriminative information critical for accurate keystroke prediction. When both modifications are combined in our proposed model, the negative impact of the autoencoder outweighs the positive contribution of the multi-scale convolutions, resulting in the same 25.90\% CER as the autoencoder-only variant.
 
 \subsection{Computational Efficiency}
 
 We also evaluate the computational efficiency of our approach in terms of model size and inference time.
 
-[TABLE: Model size and inference time comparison]
+\begin{table}[h]
+    \centering
+    \caption{Computational Efficiency and Training Convergence}
+    \begin{tabular}{lccc}
+        \hline
+        \textbf{Model Configuration}  & \textbf{Total Training} & \textbf{Steps to 1.05} & \textbf{Convergence}     \\
+                                      & \textbf{Steps}          & \textbf{of Final CER}  & \textbf{Percentage (\%)} \\
+        \hline
+        Baseline (Tiny Model)         & 110,849                 & 62,699                 & 56.56                    \\
+        Autoencoder Only              & 110,856                 & 62,699                 & 56.56                    \\
+        Multi-scale Convolutions Only & 107,879                 & 58,234                 & 53.98                    \\
+        Both (Proposed Model)         & 110,856                 & 62,699                 & 56.56                    \\
+        \hline
+    \end{tabular}
+    \label{tab:computational_efficiency}
+\end{table}
+
 
 Despite the additional complexity of the multi-scale TDS convolutions, our model has [PERCENTAGE] fewer parameters than the baseline model due to the dimensionality reduction provided by the autoencoder. This results in [PERCENTAGE] faster inference time, making our approach more suitable for real-time applications.
 
@@ -40,6 +145,6 @@ Despite the additional complexity of the multi-scale TDS convolutions, our model
 
 To assess the generalization capability of our approach, we evaluate its performance on data from users not seen during training.
 
-[TABLE: Cross-user generalization results]
+    [TABLE: Cross-user generalization results]
 
-Our model achieves a CER of [VALUE] on unseen users, which is [PERCENTAGE] lower than the baseline model's CER of [VALUE]. This suggests that our approach learns more generalizable features that transfer better across different users. 
+Our model achieves a CER of [VALUE] on unseen users, which is [PERCENTAGE] lower than the baseline model's CER of [VALUE]. This suggests that our approach learns more generalizable features that transfer better across different users.

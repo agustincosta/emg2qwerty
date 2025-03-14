@@ -1,0 +1,129 @@
+# Training Metrics Report
+
+## Available Metrics
+train/loss, val/loss, val/CER, val/IER, val/DER, val/SER, train/CER, train/IER, train/DER, train/SER, test/loss, test/CER, test/IER, test/DER, test/SER
+
+## train/loss
+Min: 0.714283
+Max: 272.824371
+Mean: 2.508106
+Final: 0.889300
+Min at step: 100299
+Max at step: 699
+
+## val/loss
+Min: 0.982829
+Max: 170.326721
+Mean: 2.398965
+Final: 0.983450
+Min at step: 107135
+Max at step: 743
+
+## val/CER
+Min: 30.097195
+Max: 2508.658936
+Mean: 56.316284
+Final: 30.097195
+Min at step: 107879
+Max at step: 743
+
+## val/IER
+Min: 0.020798
+Max: 100.000000
+Mean: 16.735189
+Final: 7.111463
+Min at step: 743
+Max at step: 1487
+
+## val/DER
+Min: 0.000000
+Max: 2444.499023
+Mean: 22.244481
+Final: 6.961718
+Min at step: 1487
+Max at step: 743
+
+## val/SER
+Min: 0.000000
+Max: 64.139038
+Mean: 17.336615
+Final: 16.024015
+Min at step: 1487
+Max at step: 743
+
+## train/CER
+Min: 31.861044
+Max: 2493.302246
+Mean: 60.491605
+Final: 31.861044
+Min at step: 110855
+Max at step: 743
+
+## train/IER
+Min: 0.021571
+Max: 100.000000
+Mean: 21.181478
+Final: 9.457135
+Min at step: 743
+Max at step: 2231
+
+## train/DER
+Min: 0.000000
+Max: 2428.641357
+Mean: 21.251690
+Final: 6.149147
+Min at step: 2231
+Max at step: 743
+
+## train/SER
+Min: 0.000000
+Max: 64.639275
+Mean: 18.058436
+Final: 16.254763
+Min at step: 2231
+Max at step: 743
+
+## test/loss
+Min: 0.838605
+Max: 0.838605
+Mean: 0.838605
+Final: 0.838605
+Min at step: 110856
+Max at step: 110856
+
+## test/CER
+Min: 25.895555
+Max: 25.895555
+Mean: 25.895555
+Final: 25.895555
+Min at step: 110856
+Max at step: 110856
+
+## test/IER
+Min: 8.090722
+Max: 8.090722
+Mean: 8.090722
+Final: 8.090722
+Min at step: 110856
+Max at step: 110856
+
+## test/DER
+Min: 1.949172
+Max: 1.949172
+Mean: 1.949172
+Final: 1.949172
+Min at step: 110856
+Max at step: 110856
+
+## test/SER
+Min: 15.855661
+Max: 15.855661
+Mean: 15.855661
+Final: 15.855661
+Min at step: 110856
+Max at step: 110856
+
+## Convergence Analysis
+Total training steps: 110849
+Steps to reach 1.1 of final loss: 62699.0 (56.56% of training)
+

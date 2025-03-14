@@ -1,0 +1,2 @@
+- model=tds_conv_ctc_autoencoder_tiny
+- checkpoint=checkpoints/model-autoencoder-tiny-new/model-autoencoder-tiny-new-epochepoch_95-val_metricval_metric_0.0000.ckpt

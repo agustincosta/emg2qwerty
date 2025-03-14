@@ -111,3 +111,7 @@ We train our model using the PyTorch Lightning framework with the following sett
 \end{itemize}
 
 For evaluation, we use character error rate (CER) as the primary metric, which measures the edit distance between the predicted and ground truth character sequences. We also report inference time to assess the practical utility of our approach.
+
+\subsubsection{Hardware and Implementation}
+
+All experiments were conducted on an AWS EC2 g5.2xlarge instance using one NVIDIA A10G GPU with 24 GB of VRAM. The training was implemented in PyTorch 2.6 and PyTorch Lightning. The autoencoder training took approximately 1 hour, while the full model training required approximately 3 hours per experiment. We used mixed-precision training (FP16) to improve computational efficiency and reduce memory requirements.

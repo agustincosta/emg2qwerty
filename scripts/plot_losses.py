@@ -3,6 +3,7 @@ import os
 from typing import Dict, List
 
 import matplotlib.pyplot as plt
+import numpy as np
 import typer
 from tensorboard.backend.event_processing.event_accumulator import EventAccumulator  # type: ignore
 
@@ -421,6 +422,32 @@ def main(
     all_data = {}
     for dir_path in log_dirs:
         data = extract_tensorboard_data(dir_path)
+        # Save the extracted data to a JSON file
+        run_name = os.path.basename(os.path.normpath(dir_path))
+        json_output_dir = os.path.join(output, "json_data")
+        os.makedirs(json_output_dir, exist_ok=True)
+
+        if data:
+            import json
+
+            # Convert numpy arrays to lists for JSON serialization
+            serializable_data = {}
+            for metric_name, metric_data in data.items():
+                serializable_data[metric_name] = {
+                    "step": metric_data["step"].tolist()
+                    if isinstance(metric_data["step"], np.ndarray)
+                    else metric_data["step"],
+                    "value": metric_data["value"].tolist()
+                    if isinstance(metric_data["value"], np.ndarray)
+                    else metric_data["value"],
+                }
+
+            # Save to JSON file
+            json_path = os.path.join(json_output_dir, f"{run_name}_data.json")
+            with open(json_path, "w") as f:
+                json.dump(serializable_data, f, indent=2)
+
+            typer.echo(f"Data for {run_name} saved to {json_path}")
         if data:  # Only include directories with valid data
             all_data[dir_path] = data
 

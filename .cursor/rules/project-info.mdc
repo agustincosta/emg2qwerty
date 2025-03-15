@@ -1,0 +1,104 @@
+---
+description: This rule provides general context about the project
+globs: *.tex
+---
+
+# Project description
+This project contains dataset of surface electromyography (sEMG) recordings while touch typing on a QWERTY keyboard with ground-truth, and variations of models to predict the keys being typed based on the sEMG signals.
+The original emg2qwerty project published the dataset and a model architecture with several trained baselines. This project expands on that work with modifications on the model, using a subset of the original dataset.
+
+# EMG2QWERTY Project Organization
+This project uses a well-structured organization based on PyTorch Lightning, Hydra, and OmegaConf to predict keyboard typing from surface electromyography (sEMG) signals. Here's a breakdown of how it's organized:
+## Core Framework Components
+### PyTorch Lightning
+- Provides a high-level interface for PyTorch that abstracts away boilerplate code
+- Handles training loops, validation, testing, and distributed training
+- Used through the LightningModule for model definition and LightningDataModule for data handling
+### Hydra
+- Manages configuration with hierarchical YAML files
+- Enables easy command-line overrides of configuration parameters
+- Handles experiment tracking and output organization
+- Creates structured output directories for logs and checkpoints
+### OmegaConf
+- Configuration system that works with Hydra
+- Provides type-safe configuration with inheritance and composition
+- Allows for dynamic resolution of configuration values
+## Project Structure
+### Configuration System (config/)
+- `base.yaml`: Root configuration that imports other configs
+- Modular configs for:
+    - Models (model: tds_conv_ctc_tiny)
+    - Optimizers (optimizer: adam)
+    - Learning rate schedulers (lr_scheduler: linear_warmup_cosine_annealing)
+    - Decoders (decoder: ctc_greedy)
+    - Data transforms (transforms: log_spectrogram)
+    - User datasets (user: joined_users)
+    - Cluster settings (cluster: local)
+### Training Pipeline (train.py)
+The main entry point that:
+1. Sets up the environment and seeds for reproducibility
+2. Instantiates the model, data module, and transforms based on configuration
+3. Configures callbacks (checkpointing, early stopping, learning rate monitoring)
+4. Handles training, validation, and testing
+5. Manages checkpoint loading and saving
+### Data Processing
+- Uses transforms to process raw EMG signals
+- Supports custom data transformations through a composable pipeline
+- Handles dataset splitting into train/val/test sets
+### Model Architecture
+- Defined in separate configuration files
+- Currently using a TDS (Temporal Depth-Separable) Convolutional model with CTC loss
+## Key Features
+1. Experiment Management: Hydra creates timestamped directories for each run with full configuration
+2. Checkpointing: Automatically saves the best model based on validation metrics
+3. Early Stopping: Prevents overfitting by monitoring validation performance
+4. Mixed Precision Training: Uses 16-bit precision for faster training
+5. Resumable Training: Can resume from previous checkpoints
+6. Flexible Configuration: Easy to swap components (models, optimizers, etc.)
+7. Metric Tracking: Logs metrics to TensorBoard and CSV files
+
+# Modifications to original project
+The project has been extended with two significant modifications to improve the model's ability to process EMG signals for keyboard typing prediction:
+
+## 1. Autoencoder for Dimensionality Reduction
+A new autoencoder component has been added to reduce the dimensionality of the input EMG spectrograms while preserving essential information:
+
+### Key Components:
+- `EMGSpecAutoEncoder` Class:
+    - Compresses 32-channel EMG spectrograms (2 bands × 16 electrodes) to a 16-channel bottleneck representation
+    - Uses a convolutional architecture with encoder and decoder components
+    - Maintains spatial relationships in the data through 2D convolutions
+### Training Pipeline:
+- `autoencoder_train.py`:
+    - A dedicated training script for the autoencoder, separate from the main model training
+    - Uses the same Hydra configuration system but with autoencoder-specific settings
+    - Includes visualization capabilities to track training and validation loss
+### Configuration:
+- `config/autoencoder.yaml`:
+    - Defines autoencoder-specific parameters like bottleneck size and learning rate
+    - Uses the same data pipeline as the main model but optimizes for reconstruction loss
+### Benefits:
+1. Dimensionality Reduction: Compresses the input from 32 to 16 channels, reducing model complexity
+2. Feature Learning: Learns meaningful representations of EMG patterns
+3. Noise Reduction: Can filter out noise while preserving signal characteristics
+4. Preprocessing Step: Can be used as a preprocessing step for the main model
+
+## 2. Multi-Scale TDS Convolutions
+The original Time-Depth Separable (TDS) convolutions have been enhanced with multi-scale capabilities:
+### Key Components:
+- `MultiScaleTDSConv2dBlock` Class:
+    - Extends the standard TDS block with parallel convolutions using different kernel sizes
+    - Captures dependencies at multiple time scales simultaneously (short, medium, and long-range)
+    - Merges multi-scale features using a 1×1 convolution
+### Implementation Details:
+- Uses three parallel convolution branches with different kernel widths:
+    - Small kernel (kernel_width/2): Captures local, fine-grained patterns
+    - Medium kernel (kernel_width): Captures medium-range dependencies
+    - Large kernel (kernel_width*2): Captures longer-range dependencies
+- Features from all scales are concatenated and then merged back to the original channel dimension
+### Benefits:
+1. Multi-Scale Feature Extraction: Captures patterns at different temporal resolutions
+2. Improved Temporal Modeling: Better handles both short and long-range dependencies in EMG signals
+3. Enhanced Robustness: Less sensitive to variations in signal duration or speed
+4. Hierarchical Feature Learning: Learns both micro and macro patterns in the EMG data
+

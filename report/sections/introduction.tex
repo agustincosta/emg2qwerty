@@ -1,0 +1,17 @@
+\section{Introduction}
+
+Surface electromyography (sEMG) signals offer a promising pathway for developing non-invasive interfaces that can decode human motor intentions. The EMG2QWERTY project demonstrated the feasibility of predicting keyboard typing from sEMG recordings, opening possibilities for new interaction modalities and assistive technologies. However, several challenges remain in making such systems practical and robust.
+
+Two significant challenges in EMG-based typing prediction are: (1) the high dimensionality and noise in multi-channel sEMG recordings, and (2) the complex temporal dependencies in typing movements that span multiple time scales. Traditional approaches often struggle with these challenges, leading to suboptimal performance or requiring excessive computational resources.
+
+In this work, we focus on addressing these specific challenges through architectural innovations. Rather than simply scaling up model complexity, we explore how targeted modifications to the model architecture can improve performance while maintaining or reducing computational requirements. Our approach is motivated by two key insights:
+
+First, the 32-channel EMG spectrograms (2 frequency bands × 16 electrodes) contain redundant information that can be effectively compressed without significant loss of discriminative power. Second, typing movements involve temporal dependencies at multiple scales—from the millisecond-level muscle activations to the longer sequences of finger movements required for typing words.
+
+We propose two complementary modifications to the original EMG2QWERTY framework:
+\begin{enumerate}
+    \item An autoencoder-based dimensionality reduction technique that learns to compress the input EMG spectrograms while preserving essential information
+    \item A multi-scale temporal depth-separable (TDS) convolutional architecture that captures dependencies at multiple time scales simultaneously
+\end{enumerate}
+
+These modifications aim to improve the model's ability to extract relevant features from noisy sEMG signals and to better model the complex temporal patterns in typing movements. By addressing these specific challenges, we seek to advance the state-of-the-art in EMG-based typing interfaces and bring them closer to practical applications. 

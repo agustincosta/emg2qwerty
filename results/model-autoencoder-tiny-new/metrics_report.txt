@@ -1,0 +1,129 @@
+# Training Metrics Report
+
+## Available Metrics
+train/loss, val/loss, val/CER, val/IER, val/DER, val/SER, train/CER, train/IER, train/DER, train/SER, test/loss, test/CER, test/IER, test/DER, test/SER
+
+## train/loss
+Min: 0.720825
+Max: 259.179382
+Mean: 3.307687
+Final: 1.141015
+Min at step: 66349
+Max at step: 599
+
+## val/loss
+Min: 0.926659
+Max: 168.800415
+Mean: 3.017174
+Final: 0.926659
+Min at step: 71473
+Max at step: 743
+
+## val/CER
+Min: 28.352953
+Max: 2559.165527
+Mean: 66.827974
+Final: 28.352953
+Min at step: 71473
+Max at step: 743
+
+## val/IER
+Min: 0.036050
+Max: 98741195678711.000000
+Mean: 1017950470932.498657
+Final: 5.941239
+Min at step: 743
+Max at step: 5951
+
+## val/DER
+Min: 0.000000
+Max: 2507.506592
+Mean: 31.698797
+Final: 7.501075
+Min at step: 1487
+Max at step: 743
+
+## val/SER
+Min: 0.000000
+Max: 51.622921
+Mean: 16.165683
+Final: 14.910639
+Min at step: 1487
+Max at step: 743
+
+## train/CER
+Min: 31.431896
+Max: 2494.342041
+Mean: 71.466495
+Final: 31.431896
+Min at step: 71423
+Max at step: 743
+
+## train/IER
+Min: 0.029951
+Max: 100.000000
+Mean: 23.958746
+Final: 9.106971
+Min at step: 743
+Max at step: 2231
+
+## train/DER
+Min: 0.000000
+Max: 2439.906250
+Mean: 30.207386
+Final: 6.226283
+Min at step: 2231
+Max at step: 743
+
+## train/SER
+Min: 0.000000
+Max: 54.405914
+Mean: 17.300364
+Final: 16.098642
+Min at step: 2231
+Max at step: 743
+
+## test/loss
+Min: 0.758643
+Max: 0.758643
+Mean: 0.758643
+Final: 0.758643
+Min at step: 71473
+Max at step: 71473
+
+## test/CER
+Min: 23.537775
+Max: 23.537775
+Mean: 23.537775
+Final: 23.537775
+Min at step: 71473
+Max at step: 71473
+
+## test/IER
+Min: 7.063679
+Max: 7.063679
+Mean: 7.063679
+Final: 7.063679
+Min at step: 71473
+Max at step: 71473
+
+## test/DER
+Min: 1.968498
+Max: 1.968498
+Mean: 1.968498
+Final: 1.968498
+Min at step: 71473
+Max at step: 71473
+
+## test/SER
+Min: 14.505598
+Max: 14.505598
+Mean: 14.505598
+Final: 14.505598
+Min at step: 71473
+Max at step: 71473
+
+## Convergence Analysis
+Total training steps: 71399
+Steps to reach 1.1 of final loss: 17849.0 (25.00% of training)
+

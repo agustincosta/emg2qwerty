@@ -1,0 +1,30 @@
+# Training Run Details
+
+## version_0
+Directory: logs/model-multi-scale-tiny/version_0
+Available metrics: train/loss, val/loss, train/CER, val/CER
+Total training steps: 72149
+Steps to reach 1.1 of final loss: 38999 (54.05% of training)
+
+### Training Loss
+Min: 0.550827
+Max: 221.220581
+Final: 0.703889
+
+### Validation Loss
+Min: 0.989120
+Max: 135.001816
+Final: 1.007761
+
+### Training CER
+Min: 19.021730
+Max: 1729.844727
+Final: 19.043646
+
+### Validation CER
+Min: 23.193710
+Max: 1747.223511
+Final: 23.403076
+
+--------------------------------------------------
+

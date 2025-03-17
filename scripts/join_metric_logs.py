@@ -48,5 +48,5 @@ def add_constants_to_columns(
 
 
 if __name__ == "__main__":
-    path = "logs/model-autoencoder-tiny-new/version_1/metrics_2.csv"
-    add_constants_to_columns(path, ["step", "epoch"], [71424, 96])
+    path = "logs/model-tiny-new/metrics/metrics copy 2.csv"
+    add_constants_to_columns(path, ["step", "epoch"], [29798, 40])

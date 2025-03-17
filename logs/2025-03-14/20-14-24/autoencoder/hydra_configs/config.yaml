@@ -39,7 +39,7 @@ dataset:
   test:
   - user: 89335547
     session: 2021-06-02-1622682789-keystrokes-dca-study@1-0efbe614-9ae6-4131-9192-4398359b4f5f
-  root: data/89335547
+  root: /mnt/newvolume/dataset
 to_tensor:
   _target_: emg2qwerty.transforms.ToTensor
   fields:

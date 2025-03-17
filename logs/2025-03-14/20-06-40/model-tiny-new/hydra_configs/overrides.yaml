@@ -1,0 +1,2 @@
+- model=tds_conv_ctc_tiny
+- trainer.accelerator=cpu

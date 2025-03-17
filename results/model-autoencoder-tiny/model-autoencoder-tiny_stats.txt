@@ -1,0 +1,30 @@
+# Training Run Details
+
+## version_14
+Directory: logs/model-autoencoder-tiny/version_14
+Available metrics: train/loss, val/loss, train/CER, val/CER
+Total training steps: 100399
+Steps to reach 1.1 of final loss: 39849 (39.69% of training)
+
+### Training Loss
+Min: 0.818533
+Max: 252.582733
+Final: 1.063256
+
+### Validation Loss
+Min: 1.132102
+Max: 135.986633
+Final: 1.133487
+
+### Training CER
+Min: 30.131830
+Max: 2002.802368
+Final: 30.131830
+
+### Validation CER
+Min: 29.514856
+Max: 2018.388062
+Final: 29.541201
+
+--------------------------------------------------
+

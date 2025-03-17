@@ -1,0 +1,89 @@
+# Training Metrics Report
+
+## Available Metrics
+train/loss, val/loss, val/CER, val/IER, val/DER, val/SER, train/CER, train/IER, train/DER, train/SER
+
+## train/loss
+Min: 0.550827
+Max: 221.220581
+Mean: 2.540939
+Final: 0.703889
+Min at step: 68899
+Max at step: 249
+
+## val/loss
+Min: 0.989120
+Max: 135.001816
+Mean: 2.628322
+Final: 1.007761
+Min at step: 58775
+Max at step: 743
+
+## val/CER
+Min: 23.193710
+Max: 1747.223511
+Mean: 50.761307
+Final: 23.403076
+Min at step: 67703
+Max at step: 743
+
+## val/IER
+Min: 0.037436
+Max: 100.000000
+Mean: 21.793225
+Final: 13.122027
+Min at step: 743
+Max at step: 1487
+
+## val/DER
+Min: 0.000000
+Max: 1678.328735
+Mean: 18.536118
+Final: 1.408705
+Min at step: 1487
+Max at step: 743
+
+## val/SER
+Min: 0.000000
+Max: 68.857368
+Mean: 10.431964
+Final: 8.872343
+Min at step: 1487
+Max at step: 743
+
+## train/CER
+Min: 19.021730
+Max: 1729.844727
+Mean: 51.175840
+Final: 19.043646
+Min at step: 71423
+Max at step: 743
+
+## train/IER
+Min: 0.029003
+Max: 100.000000
+Mean: 24.291379
+Final: 14.149755
+Min at step: 743
+Max at step: 2231
+
+## train/DER
+Min: 0.000000
+Max: 1660.274292
+Mean: 18.232465
+Final: 0.870204
+Min at step: 2231
+Max at step: 743
+
+## train/SER
+Min: 0.000000
+Max: 69.541428
+Mean: 8.651996
+Final: 4.023686
+Min at step: 2231
+Max at step: 743
+
+## Convergence Analysis
+Total training steps: 72149
+Steps to reach 1.1 of final loss: 38999.0 (54.05% of training)
+

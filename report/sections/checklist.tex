@@ -1,0 +1,80 @@
+\section*{NeurIPS Paper Checklist}
+
+\begin{enumerate}
+
+    \item {\bf Claims}
+    \item[] Question: Do the main claims made in the abstract and introduction accurately reflect the paper's contributions and scope?
+    \item[] Answer: \answerYes{}
+    \item[] Justification: The abstract and introduction clearly state the two main contributions of our work: (1) an autoencoder-based dimensionality reduction technique and (2) a multi-scale temporal depth-separable convolutional architecture. These sections accurately describe the scope of our work, which focuses on improving EMG-based typing prediction through these architectural innovations.
+
+    \item {\bf Limitations}
+    \item[] Question: Does the paper discuss the limitations of the work performed by the authors?
+    \item[] Answer: \answerYes{}
+    \item[] Justification: Section~\ref{subsec:limitations} explicitly discusses several limitations of our approach, including challenges in user-specific adaptation, real-time constraints, sensitivity to electrode placement, and the potential benefits of integrating language models. We provide a thorough analysis of these limitations and suggest directions for future work to address them.
+
+    \item {\bf Theory Assumptions and Proofs}
+    \item[] Question: For each theoretical result, does the paper provide the full set of assumptions and a complete (and correct) proof?
+    \item[] Answer: \answerNA{}
+    \item[] Justification: Our paper focuses on empirical results and architectural innovations rather than theoretical proofs. We do not present formal theorems or mathematical proofs that would require detailed assumptions or formal verification.
+
+    \item {\bf Experimental Result Reproducibility}
+    \item[] Question: Does the paper fully disclose all the information needed to reproduce the main experimental results of the paper to the extent that it affects the main claims and/or conclusions of the paper (regardless of whether the code and data are provided or not)?
+    \item[] Answer: \answerYes{}
+    \item[] Justification: The Methods section (Section~\ref{sec:methods}) and Appendix provide detailed descriptions of our model architectures, training procedures, and hyperparameters. Section~\ref{subsec:autoencoder} describes the autoencoder architecture in detail, Section~\ref{subsec:multiscale} explains the multi-scale TDS convolutions, and the Appendix includes implementation details such as layer configurations, algorithm pseudocode, and training hyperparameters.
+
+    \item {\bf Open access to data and code}
+    \item[] Question: Does the paper provide open access to the data and code, with sufficient instructions to faithfully reproduce the main experimental results, as described in supplemental material?
+    \item[] Answer: \answerYes{}
+    \item[] Justification: We use the publicly available EMG2QWERTY dataset, which we properly cite. Our code will be made available in a public GitHub repository upon publication, with detailed instructions for reproducing our experiments. The repository will include implementation of both the autoencoder and the multi-scale TDS convolution models, along with training and evaluation scripts.
+
+    \item {\bf Experimental Setting/Details}
+    \item[] Question: Does the paper specify all the training and test details (e.g., data splits, hyperparameters, how they were chosen, type of optimizer, etc.) necessary to understand the results?
+    \item[] Answer: \answerYes{}
+    \item[] Justification: Section~\ref{subsec:training} "Training and Evaluation" describes our training setup, including optimizer choice, learning rate scheduler, batch size, and training epochs. The Appendix provides a comprehensive table of hyperparameters for both the autoencoder and the main model. We also describe our evaluation metrics (CER, WER) and data splitting strategy in Section~\ref{subsec:dataset}.
+
+    \item {\bf Experiment Statistical Significance}
+    \item[] Question: Does the paper report error bars suitably and correctly defined or other appropriate information about the statistical significance of the experiments?
+    \item[] Answer: \answerYes{}
+    \item[] Justification: In our results section (Section~\ref{sec:results}), we report standard deviations across multiple runs with different random seeds for all key metrics. For the cross-user generalization experiments, we report performance across different users to show the variability in model performance. Statistical significance is assessed using paired t-tests when comparing our approach to the baseline.
+
+    \item {\bf Experiments Compute Resources}
+    \item[] Question: For each experiment, does the paper provide sufficient information on the computer resources (type of compute workers, memory, time of execution) needed to reproduce the experiments?
+    \item[] Answer: \answerYes{}
+    \item[] Justification: In Section~\ref{subsec:hardware}, we provide details on the computational resources used for our experiments, including GPU type (NVIDIA A10G), memory requirements, and approximate training times for both the autoencoder (approximately 1 hour) and the main model (approximately 3 hours). We also report the total compute used for all experiments, including preliminary experiments not included in the final paper.
+
+    \item {\bf Code Of Ethics}
+    \item[] Question: Does the research conducted in the paper conform, in every respect, with the NeurIPS Code of Ethics \url{https://neurips.cc/public/EthicsGuidelines}?
+    \item[] Answer: \answerYes{}
+    \item[] Justification: Our research fully complies with the NeurIPS Code of Ethics. We use a publicly available dataset with appropriate citations, we do not introduce any harmful applications, and we discuss both the benefits and limitations of our approach. Our work aims to improve assistive technology, which aligns with the ethical goal of benefiting society.
+
+    \item {\bf Broader Impacts}
+    \item[] Question: Does the paper discuss both potential positive societal impacts and negative societal impacts of the work performed?
+    \item[] Answer: \answerYes{}
+    \item[] Justification: Section~\ref{subsec:broader} "Broader Impact" discusses the potential positive impacts of our work, including applications in assistive technology, prosthetics control, and human-computer interaction. While our work has minimal negative societal impacts, we acknowledge potential privacy concerns related to EMG data collection and the need for careful consideration of user consent and data protection in real-world applications.
+
+    \item {\bf Safeguards}
+    \item[] Question: Does the paper describe safeguards that have been put in place for responsible release of data or models that have a high risk for misuse (e.g., pretrained language models, image generators, or scraped datasets)?
+    \item[] Answer: \answerNA{}
+    \item[] Justification: Our work on EMG-based typing prediction does not pose significant risks for misuse. The models we develop are specifically designed for interpreting EMG signals for typing and have limited applicability outside this domain. The data used is from a public research dataset of EMG signals that does not contain sensitive or personally identifiable information.
+
+    \item {\bf Licenses for existing assets}
+    \item[] Question: Are the creators or original owners of assets (e.g., code, data, models), used in the paper, properly credited and are the license and terms of use explicitly mentioned and properly respected?
+    \item[] Answer: \answerYes{}
+    \item[] Justification: We properly cite the original EMG2QWERTY dataset and its creators. The dataset is publicly available for research purposes, and we use it in accordance with its intended use. All third-party libraries and frameworks used (PyTorch, PyTorch Lightning, Hydra) are properly acknowledged, and our usage complies with their respective licenses.
+
+    \item {\bf New Assets}
+    \item[] Question: Are new assets introduced in the paper well documented and is the documentation provided alongside the assets?
+    \item[] Answer: \answerYes{}
+    \item[] Justification: The new models we introduce (autoencoder and multi-scale TDS convolution) are thoroughly documented in the paper, with detailed architectural descriptions, pseudocode, and hyperparameter settings. Our code repository will include comprehensive documentation, including README files, code comments, and example usage scripts to facilitate adoption by other researchers.
+
+    \item {\bf Crowdsourcing and Research with Human Subjects}
+    \item[] Question: For crowdsourcing experiments and research with human subjects, does the paper include the full text of instructions given to participants and screenshots, if applicable, as well as details about compensation (if any)?
+    \item[] Answer: \answerNA{}
+    \item[] Justification: Our paper does not involve new crowdsourcing or human subjects research. We use an existing dataset (EMG2QWERTY) that was collected in previous research, which we properly cite.
+
+    \item {\bf Institutional Review Board (IRB) Approvals or Equivalent for Research with Human Subjects}
+    \item[] Question: Does the paper describe potential risks incurred by study participants, whether such risks were disclosed to the subjects, and whether Institutional Review Board (IRB) approvals (or an equivalent approval/review based on the requirements of your country or institution) were obtained?
+    \item[] Answer: \answerNA{}
+    \item[] Justification: Our research does not involve new human subjects data collection. We use the existing EMG2QWERTY dataset, which was collected under appropriate ethical guidelines as described in the original publication that we cite.
+
+\end{enumerate}

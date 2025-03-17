@@ -77,25 +77,47 @@ transforms:
   - ${to_tensor}
   - ${logspec}
   test: ${transforms.val}
+module:
+  _target_: emg2qwerty.lightning.TDSConvCTCModule
+  in_features: 528
+  mlp_features:
+  - 192
+  block_channels:
+  - 12
+  - 12
+  - 12
+  - 12
+  kernel_width: 16
+  electrode_channels: 16
+  multi_scale: true
+datamodule:
+  _target_: emg2qwerty.lightning.WindowedEMGDataModule
+  window_length: 6000
+  padding:
+  - 1200
+  - 200
+optimizer:
+  _target_: torch.optim.Adam
+  lr: 0.001
+lr_scheduler:
+  scheduler:
+    _target_: pl_bolts.optimizers.lr_scheduler.LinearWarmupCosineAnnealingLR
+    warmup_epochs: 10
+    max_epochs: ${trainer.max_epochs}
+    warmup_start_lr: 1.0e-08
+    eta_min: 1.0e-06
+  interval: epoch
+decoder:
+  _target_: emg2qwerty.decoder.CTCGreedyDecoder
 seed: 1501
 batch_size: 32
 num_workers: 4
 train: true
 checkpoint: null
-monitor_metric: val/loss
+monitor_metric: val/CER
 monitor_mode: min
 reduced: false
-model_name: autoencoder_lr_0.0001_new
-autoencoder:
-  in_channels: 32
-  bottleneck_channels: 16
-  lr: 0.0001
-datamodule:
-  _target_: emg2qwerty.lightning.WindowedEMGDataModule
-  window_length: 8000
-  padding:
-  - 1800
-  - 200
+model_name: model-tiny-new
 trainer:
   accelerator: cpu
   devices: 1
@@ -106,7 +128,7 @@ trainer:
 callbacks:
 - _target_: pytorch_lightning.callbacks.LearningRateMonitor
 - _target_: pytorch_lightning.callbacks.ModelCheckpoint
-  dirpath: ${hydra:runtime.output_dir}/autoencoder/checkpoints
+  dirpath: ${hydra:runtime.output_dir}/checkpoints/${model_name}
   monitor: ${monitor_metric}
   mode: ${monitor_mode}
   save_last: true
@@ -115,5 +137,5 @@ callbacks:
   monitor: ${monitor_metric}
   mode: ${monitor_mode}
   patience: 10
-  min_delta: 0.01
+  min_delta: 0.05
   verbose: true

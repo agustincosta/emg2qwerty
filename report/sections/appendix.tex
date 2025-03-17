@@ -1,37 +1,32 @@
+\section{Code repository}
+The code for this project is available at \url{https://github.com/agustincosta/emg2qwerty}
+
 \section{Implementation Details}
 
-\subsection{Autoencoder Architecture}
-
-The detailed architecture of the EMGSpecAutoEncoder is as follows:
-
-\begin{table}[h]
+\subsection{Autoencoder Reconstruction}
+\begin{figure}[h]
     \centering
-    \caption{EMGSpecAutoEncoder Architecture}
-    \begin{tabular}{lll}
-        \toprule
-        Layer                    & Output Shape  & Parameters \\
-        \midrule
-        \multicolumn{3}{c}{Encoder}                           \\
-        \midrule
-        Input                    & (B, 32, T, F) & -          \\
-        Conv2D (3×3, 16 filters) & (B, 16, T, F) & 4,624      \\
-        BatchNorm2D              & (B, 16, T, F) & 32         \\
-        ReLU                     & (B, 16, T, F) & -          \\
-        \midrule
-        \multicolumn{3}{c}{Decoder}                           \\
-        \midrule
-        Conv2D (3×3, 32 filters) & (B, 32, T, F) & 4,640      \\
-        \bottomrule
-    \end{tabular}
-\end{table}
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[height=7cm,width=\textwidth]{../output/spectrogram_comparison_0_reduced.png}
+        \caption{Visualization of original and reconstructed spectrograms for 16 channels of a random data sample}
+        \label{fig:autoencoder_reconstruction}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[height=7cm, width=0.8\textwidth]{../output/reconstruction_error_0_reduced.png}
+        \caption{Visualization of the reconstruction error for the same random data sample}
+        \label{fig:autoencoder_error}
+    \end{minipage}
+\end{figure}
 
-Where B is the batch size, T is the time dimension, and F is the frequency dimension.
 
 \subsection{Multi-Scale TDS Convolution Block}
 
-The detailed implementation of the MultiScaleTDSConv2dBlock is as follows:
+The detailed implementation of the MultiScaleTDSConv2dBlock shown in Algorithm \ref{alg:multi_scale_tds_conv2d_block}:
 
-\begin{algorithm}
+\begin{algorithm}[h]
     \caption{MultiScaleTDSConv2dBlock Forward Pass}
     \begin{algorithmic}[1]
         \STATE \textbf{Input:} x (input tensor), channels, width, kernel\_widths=[$k_1$, $k_2$, $k_3$]
@@ -62,11 +57,12 @@ The detailed implementation of the MultiScaleTDSConv2dBlock is as follows:
         \STATE y = LayerNorm(y)
         \STATE \textbf{return} y
     \end{algorithmic}
+    \label{alg:multi_scale_tds_conv2d_block}
 \end{algorithm}
 
 \subsection{Training Hyperparameters}
 
-The hyperparameters used for training the autoencoder and the main model are as follows:
+The hyperparameters used for training the autoencoder and the main model are shown in Table \ref{tab:training_hyperparameters}:
 
 \begin{table}[h]
     \centering
@@ -83,6 +79,7 @@ The hyperparameters used for training the autoencoder and the main model are as 
         Learning rate scheduler & None        & CosineAnnealing \\
         \bottomrule
     \end{tabular}
+    \label{tab:training_hyperparameters}
 \end{table}
 
 \section{Additional Results}
@@ -90,43 +87,69 @@ The hyperparameters used for training the autoencoder and the main model are as 
 \subsection{Learning Curves}
 
 \subsubsection{Autoencoder}
-\begin{figure}[h]
+\begin{figure}[H]
+    \centering
+    \includegraphics[height=7cm,width=0.6\textwidth]{../results/autoencoder-new/loss_plot.png}
+    \caption{Learning curves showing training and validation loss for the autoencoder}
+    \label{fig:autoencoder_loss}
+\end{figure}
+
+\subsubsection{Baseline Model}
+\begin{figure}[H]
     \centering
     \begin{minipage}{0.48\textwidth}
         \centering
-        \includegraphics[height=7cm,width=\textwidth]{../results/model-autoencoder-tiny/model-autoencoder-tiny_losses.png}
-        \caption{Learning curves showing training and validation loss for the autoencoder}
-        \label{fig:autoencoder_loss}
+        \includegraphics[height=7cm,width=\textwidth]{../results/model-tiny-new/loss_plot.png}
+        \caption{Learning curves showing training and validation loss for the baseline model}
+        \label{fig:baseline_loss}
     \end{minipage}
     \hfill
     \begin{minipage}{0.48\textwidth}
         \centering
-        \includegraphics[height=7cm, width=0.8\textwidth]{../results/model-autoencoder-tiny/model-autoencoder-tiny_cer.png}
-        \caption{Learning curves showing training and validation CER for the autoencoder}
-        \label{fig:autoencoder_cer}
+        \includegraphics[height=7cm, width=\textwidth]{../results/model-tiny-new/cer_zoomed_plot.png}
+        \caption{Learning curves showing training and validation CER for the baseline model}
+        \label{fig:baseline_cer}
+    \end{minipage}
+\end{figure}
+
+\subsubsection{Autoencoder Only Model}
+\begin{figure}[H]
+    \centering
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[height=7cm,width=\textwidth]{../results/model-autoencoder-tiny-new/loss_plot.png}
+        \caption{Learning curves showing training and validation loss for the autoencoder only model}
+        \label{fig:autoencoder_only_loss}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[height=7cm, width=\textwidth]{../results/model-autoencoder-tiny-new/cer_zoomed_plot.png}
+        \caption{Learning curves showing training and validation CER for the autoencoder only model}
+        \label{fig:autoencoder_only_cer}
     \end{minipage}
 \end{figure}
 
 \subsubsection{Multi-Scale TDS Convolution Model}
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     \begin{minipage}{0.48\textwidth}
         \centering
-        \includegraphics[height=7cm,width=\textwidth]{../results/model-multi-scale-tiny/model-multi-scale-tiny_loss.png}
+        \includegraphics[height=7cm,width=\textwidth]{../results/model-multi-scale-tiny/loss_plot.png}
         \caption{Learning curves showing training and validation loss for the multi-scale TDS convolution model}
         \label{fig:multi_scale_loss}
     \end{minipage}
     \hfill
     \begin{minipage}{0.48\textwidth}
         \centering
-        \includegraphics[height=7cm, width=0.8\textwidth]{../results/model-multi-scale-tiny/model-multi-scale-tiny_cer.png}
+        \includegraphics[height=7cm, width=\textwidth]{../results/model-multi-scale-tiny/cer_zoomed_plot.png}
         \caption{Learning curves showing training and validation CER for the multi-scale TDS convolution model}
         \label{fig:multi_scale_cer}
     \end{minipage}
 \end{figure}
 
 \subsubsection{Autoencoder and Multi-Scale TDS Convolution Model}
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     \begin{minipage}{0.48\textwidth}
         \centering
@@ -137,24 +160,8 @@ The hyperparameters used for training the autoencoder and the main model are as 
     \hfill
     \begin{minipage}{0.48\textwidth}
         \centering
-        \includegraphics[height=7cm, width=0.8\textwidth]{../results/model-multi-scale-autoencoder-tiny/cer_zoomed_plot.png}
+        \includegraphics[height=7cm, width=\textwidth]{../results/model-multi-scale-autoencoder-tiny/cer_zoomed_plot.png}
         \caption{Learning curves showing training and validation CER for the autoencoder and multi-scale TDS convolution block}
         \label{fig:autoencoder_multi_scale_cer}
     \end{minipage}
 \end{figure}
-
-\subsection{Feature Visualization}
-
-[FIGURE: t-SNE visualization of the bottleneck features colored by character]
-
-\subsection{Error Analysis}
-
-[TABLE: Most common character confusions]
-
-[FIGURE: Confusion matrix for character prediction]
-
-\subsection{User-Specific Performance}
-
-[TABLE: CER breakdown by user]
-
-[FIGURE: Bar chart comparing baseline and proposed model performance across users]

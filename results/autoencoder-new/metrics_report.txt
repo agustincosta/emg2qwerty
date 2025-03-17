@@ -1,0 +1,33 @@
+# Training Metrics Report
+
+## Available Metrics
+train/loss, val/loss, test/loss
+
+## train/loss
+Min: 0.168417
+Max: 1.009424
+Mean: 0.232353
+Final: 0.174913
+Min at step: 19099
+Max at step: 49
+
+## val/loss
+Min: 0.139765
+Max: 0.410046
+Mean: 0.185487
+Final: 0.139765
+Min at step: 20645
+Max at step: 557
+
+## test/loss
+Min: 0.139184
+Max: 0.139184
+Mean: 0.139184
+Final: 0.139184
+Min at step: 20646
+Max at step: 20646
+
+## Convergence Analysis
+Total training steps: 20599
+Steps to reach 1.1 of final loss: 11699.0 (56.79% of training)
+

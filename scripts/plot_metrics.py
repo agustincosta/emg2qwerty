@@ -1,8 +1,8 @@
-import argparse
 import os
 
 import matplotlib.pyplot as plt
 import pandas as pd
+import typer
 
 
 def generate_report(df, output_path):
@@ -118,6 +118,7 @@ def plot_metrics(csv_file, output_dir=None):
     plt.title("Training and Validation Loss")
     plt.legend()
     plt.grid(True, alpha=0.3)
+    plt.ylim(0, 3)  # Limit y-axis to a maximum of 3
 
     if output_dir:
         plt.savefig(os.path.join(output_dir, "loss_plot.png"), dpi=300, bbox_inches="tight")
@@ -188,17 +189,10 @@ def plot_metrics(csv_file, output_dir=None):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        description="Plot training and validation metrics from CSV files"
-    )
-    parser.add_argument("csv_file", type=str, help="Path to the CSV file containing metrics")
-    parser.add_argument(
-        "--output_dir",
-        "--output-dir",
-        type=str,
-        help="Directory to save plots (optional)",
-        dest="output_dir",
-    )
+    app = typer.Typer()
 
-    args = parser.parse_args()
-    plot_metrics(args.csv_file, args.output_dir)
+    @app.command()
+    def main(csv_file: str, output_dir: str | None = None):
+        plot_metrics(csv_file, output_dir)
+
+    app()

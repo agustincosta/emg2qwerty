@@ -1,0 +1,2 @@
+- trainer.accelerator=cpu
+- user=single_user

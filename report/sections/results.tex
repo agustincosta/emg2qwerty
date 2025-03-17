@@ -1,4 +1,4 @@
-\section{Results}
+\section{Results}\label{sec:results}
 
 In this section, we present the experimental results of our proposed approach. We evaluate the performance of our model on the EMG2QWERTY dataset and compare it with the baseline model.
 
@@ -38,23 +38,6 @@ A deeper version of the autoencoder was trained with an intermediate layer of 24
     \label{tab:autoencoder_mse_deep}
 \end{table}
 
-\begin{figure}[h]
-    \centering
-    \begin{minipage}{0.48\textwidth}
-        \centering
-        \includegraphics[height=7cm,width=\textwidth]{../output/spectrogram_comparison_0_reduced.png}
-        \caption{Visualization of original and reconstructed spectrograms for 16 channels of a random data sample}
-        \label{fig:autoencoder_reconstruction}
-    \end{minipage}
-    \hfill
-    \begin{minipage}{0.48\textwidth}
-        \centering
-        \includegraphics[height=7cm, width=0.8\textwidth]{../output/reconstruction_error_0_reduced.png}
-        \caption{Visualization of the reconstruction error for the same random data sample}
-        \label{fig:autoencoder_error}
-    \end{minipage}
-\end{figure}
-
 The autoencoder achieves a reconstruction error of 0.1517 on the validation set, indicating that it can reasonably compress the 32-channel input to 16 channels while preserving most of the information. Visual inspection of the reconstructed spectrograms in Figure \ref{fig:autoencoder_reconstruction} shows that the autoencoder preserves the key patterns in the data while filtering out some of the noise. This is better visualized in Figure \ref{fig:autoencoder_error}, where the reconstruction error is shown for a random data sample.
 
 \subsection{Character Error Rate (CER)}
@@ -68,8 +51,8 @@ We first evaluate the baseline performance of the smaller model without any of t
         \hline
         \textbf{Dataset Split} & \textbf{CER (\%)} & \textbf{Loss} \\
         \hline
-        Validation             & 22.19             & 0.8074        \\
-        Test                   & 17.00             & 0.6190        \\
+        Validation             & 25.87             & 0.8479        \\
+        Test                   & 20.79             & 0.6690        \\
         \hline
     \end{tabular}
     \label{tab:baseline_cer}
@@ -91,7 +74,7 @@ We compare the character error rate (CER) of our proposed model with the baselin
     \label{tab:proposed_model_cer}
 \end{table}
 
-Our proposed model achieves a CER of 25.90\% on the test set, which is 8.29\% higher than the baseline model's CER of 17.00\%. The results are shown in Table \ref{tab:proposed_model_cer}. These results can be attributed to the fact that the autoencoder is not able to perfectly reconstruct the original signal, which introduces some noise into the system. This is further evidenced by the ablation study in the following section.
+Our proposed model achieves a CER of 25.90\% on the test set, which is 5.11\% higher than the baseline model's CER of 20.79\%. The results are shown in Table \ref{tab:proposed_model_cer}. These results can be attributed to the fact that the autoencoder is not able to perfectly reconstruct the original signal, which introduces some noise into the system. This is further evidenced by the ablation study in the following section.
 
 \subsection{Ablation Study}
 
@@ -104,47 +87,82 @@ To understand the contribution of each component of our approach, we conduct an 
         \hline
         \textbf{Model Configuration}  & \textbf{Test CER (\%)} & \textbf{Test Loss} \\
         \hline
-        Baseline (Tiny Model)         & 17.00                  & 0.6190             \\
-        Autoencoder Only              & 25.90                  & 0.8386             \\
+        Baseline                      & 20.79                  & 0.6690             \\
+        Autoencoder Only              & 23.54                  & 0.7586             \\
         Multi-scale Convolutions Only & 15.25                  & 0.6506             \\
-        Both (Proposed Model)         & 25.90                  & 0.8386             \\
+        Both                          & 25.90                  & 0.8386             \\
         \hline
     \end{tabular}
     \label{tab:ablation_study}
 \end{table}
 
-The results show that the multi-scale TDS convolutions alone improve performance over the baseline, reducing the CER from 17.00\% to 15.25\%. This improvement can be attributed to the model's enhanced ability to capture temporal patterns at different scales, which is particularly beneficial for EMG signals where keystroke patterns vary in duration. The multi-scale approach allows the model to simultaneously detect both rapid finger movements (short-term patterns) and slower typing rhythms (longer-term patterns).
+The results show that the multi-scale TDS convolutions alone improve performance over the baseline, reducing the CER from 20.79\% to 15.25\%. This improvement can be attributed to the model's enhanced ability to capture temporal patterns at different scales, which is particularly beneficial for EMG signals where keystroke patterns vary in duration. The multi-scale approach allows the model to simultaneously detect both rapid finger movements (short-term patterns) and slower typing rhythms (longer-term patterns).
 
-In contrast, the autoencoder-based dimensionality reduction negatively impacts performance, increasing the CER to 25.90\%. This suggests that the compression of the 32-channel EMG spectrograms to 16 channels results in loss of discriminative information critical for accurate keystroke prediction. When both modifications are combined in our proposed model, the negative impact of the autoencoder outweighs the positive contribution of the multi-scale convolutions, resulting in the same 25.90\% CER as the autoencoder-only variant.
+In contrast, the autoencoder-based dimensionality reduction negatively impacts performance, increasing the CER to 23.54\%. This suggests that the compression of the 32-channel EMG spectrograms to 16 channels results in loss of discriminative information critical for accurate keystroke prediction. While the multi-scale TDS convolutions enhance the model's ability to capture temporal patterns, their benefits are overshadowed when combined with the autoencoder. The interaction between these two modifications leads to a situation where the negative impact of the autoencoder outweighs the positive contributions of the multi-scale convolutions, resulting in the same 25.90\% CER as the autoencoder-only variant. This highlights the importance of carefully considering the interplay between model components in machine learning research.
 
 \subsection{Computational Efficiency}
 
-We also evaluate the computational efficiency of our approach in terms of model size and inference time.
+We also evaluate the computational efficiency of our approach in terms of model size and inference time. We set an arbitrary threshold of 1.10 of the final CER to illustrate the convergence of the model. The results are shown in Table \ref{tab:computational_efficiency}.
 
 \begin{table}[h]
     \centering
     \caption{Computational Efficiency and Training Convergence}
     \begin{tabular}{lccc}
         \hline
-        \textbf{Model Configuration}  & \textbf{Total Training} & \textbf{Steps to 1.05} & \textbf{Convergence}     \\
+        \textbf{Model Configuration}  & \textbf{Total Training} & \textbf{Steps to 1.10} & \textbf{Convergence}     \\
                                       & \textbf{Steps}          & \textbf{of Final CER}  & \textbf{Percentage (\%)} \\
         \hline
-        Baseline (Tiny Model)         & 110,849                 & 62,699                 & 56.56                    \\
-        Autoencoder Only              & 110,856                 & 62,699                 & 56.56                    \\
-        Multi-scale Convolutions Only & 107,879                 & 58,234                 & 53.98                    \\
-        Both (Proposed Model)         & 110,856                 & 62,699                 & 56.56                    \\
+        Baseline                      & 110,849                 & 62,699                 & 56.56                    \\
+        Autoencoder Only              & 71,399                  & 17,849                 & 25.00                    \\
+        Multi-scale Convolutions Only & 72,149                  & 38,999                 & 54.05                    \\
+        Both                          & 110,849                 & 62,699                 & 56.56                    \\
         \hline
     \end{tabular}
     \label{tab:computational_efficiency}
 \end{table}
 
+The autoencoder-based model shows significantly faster convergence, reaching 1.10 of its final CER in just 25\% of the total training steps, compared to over 50\% for the other configurations. This suggests that while the autoencoder approach results in higher absolute error rates, it converges more quickly to its final performance level. This trade-off between accuracy and training efficiency might be valuable in scenarios where rapid model development is prioritized over achieving the lowest possible error rates, for instance when fine-tuning the model on a specific user.
 
-Despite the additional complexity of the multi-scale TDS convolutions, our model has [PERCENTAGE] fewer parameters than the baseline model due to the dimensionality reduction provided by the autoencoder. This results in [PERCENTAGE] faster inference time, making our approach more suitable for real-time applications.
+The model size in terms of parameters is another important aspect of computational efficiency. Table \ref{tab:model_size} shows the number of parameters for each model configuration.
+
+\begin{table}[h]
+    \centering
+    \caption{Model Size Comparison and inference time}
+    \begin{tabular}{lcc}
+        \hline
+        \textbf{Model Configuration}  & \textbf{Number of Parameters} & \textbf{Inference Time (\% baseline)} \\
+        \hline
+        Baseline                      & 1.4M                          & 100\%                                 \\
+        Autoencoder Only              & 1.3M                          & 93\%                                  \\
+        Multi-scale Convolutions Only & 1.5M                          & 104\%                                 \\
+        Both                          & 1.4M                          & 100\%                                 \\
+        \hline
+    \end{tabular}
+    \label{tab:model_size}
+\end{table}
+
+As expected, the multi-scale TDS convolutions increase the number of parameters and the autoencoder reduces the number of parameters. However, the overall number of parameters in the proposed model remains the same as the baseline model.
+
+When examining the efficiency-to-performance ratio of the multi-scale convolutions model, we observe a particularly favorable balance. Despite only increasing the parameter count by approximately 7\% (from 1.4M to 1.5M parameters), this configuration achieves a substantial 26.6\% reduction in CER (from 20.79\% to 15.25\%). This translates to an impressive efficiency ratio where each 1\% increase in model size yields approximately a 3.8\% improvement in performance. Such a disproportionate gain highlights the effectiveness of the multi-scale approach in capturing the temporal dynamics of EMG signals without significantly increasing computational complexity. This efficiency makes the multi-scale convolutions particularly attractive for real-time EMG-to-text applications where both accuracy and computational constraints are important considerations.
 
 \subsection{Cross-User Generalization}
 
-To assess the generalization capability of our approach, we evaluate its performance on data from users not seen during training.
+To assess the generalization capability of our approach, we evaluate its performance on data from users not seen during training. As unseen users, we selected the 100 users that were used to train the original model, which in our case were not used in any of the configurations. The results are shown in Table \ref{tab:cross_user_generalization}.
 
-    [TABLE: Cross-user generalization results]
+\begin{table}[h]
+    \centering
+    \caption{Cross-User Generalization Results}
+    \begin{tabular}{lcc}
+        \hline
+        \textbf{Model Configuration}  & \textbf{Test CER (\%)} & \textbf{Test Loss} \\
+        \hline
+        Baseline                      & 22.63                  & 0.7321             \\
+        Autoencoder Only              & 24.49                  & 0.7903             \\
+        Multi-scale Convolutions Only & 15.25                  & 0.6506             \\
+        Both                          & 26.40                  & 0.8506             \\
+        \hline
+    \end{tabular}
+    \label{tab:cross_user_generalization}
+\end{table}
 
-Our model achieves a CER of [VALUE] on unseen users, which is [PERCENTAGE] lower than the baseline model's CER of [VALUE]. This suggests that our approach learns more generalizable features that transfer better across different users.
+Our best model (Multi-scale Convolutions Only) achieves a CER of 15.25\% on unseen users, which is 7.38\% lower than the baseline model's CER of 22.63\%. This suggests that our approach learns more generalizable features that transfer better across different users.

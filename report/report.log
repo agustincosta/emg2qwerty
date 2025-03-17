@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2025.3.10)  14 MAR 2025 09:20
+This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2025.3.10)  15 MAR 2025 00:19
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -457,16 +457,8 @@ File: ts1ptm.fd 2001/06/04 font definitions for TS1/ptm.
 
 
 {/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}]) (./sections/methods.tex [2] [3]) (./sections/results.tex [4]
-<../output/spectrogram_comparison_0_reduced.png, id=182, 864.3492pt x 1089.8316pt>
-File: ../output/spectrogram_comparison_0_reduced.png Graphic file (type png)
-<use ../output/spectrogram_comparison_0_reduced.png>
-Package pdftex.def Info: ../output/spectrogram_comparison_0_reduced.png  used on input line 45.
-(pdftex.def)             Requested size: 190.79048pt x 199.15453pt.
-<../output/reconstruction_error_0_reduced.png, id=184, 574.0647pt x 1084.7727pt>
-File: ../output/reconstruction_error_0_reduced.png Graphic file (type png)
-<use ../output/reconstruction_error_0_reduced.png>
-Package pdftex.def Info: ../output/reconstruction_error_0_reduced.png  used on input line 52.
-(pdftex.def)             Requested size: 152.6257pt x 199.157pt.
+
+LaTeX Warning: `h' float specifier changed to `ht'.
 
 
 LaTeX Warning: `h' float specifier changed to `ht'.
@@ -474,131 +466,177 @@ LaTeX Warning: `h' float specifier changed to `ht'.
 [5pdfTeX warning (ext4): destination with the same identifier (name{table.1}) has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.92 \end{table}
-                pdfTeX warning (ext4): destination with the same identifier (name{table.2}) has been already used, duplicate ignored
+l.100 
+      pdfTeX warning (ext4): destination with the same identifier (name{table.2}) has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.92 \end{table}
-                pdfTeX warning (ext4): destination with the same identifier (name{figure.1}) has been already used, duplicate ignored
+l.100 
+      pdfTeX warning (ext4): destination with the same identifier (name{table.3}) has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.92 \end{table}
-                pdfTeX warning (ext4): destination with the same identifier (name{figure.2}) has been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.92 \end{table}
-                 <../output/spectrogram_comparison_0_reduced.png> <../output/reconstruction_error_0_reduced.png>]
+l.100 
+      ]
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-[6pdfTeX warning (ext4): destination with the same identifier (name{table.3}) has been already used, duplicate ignored
+[6pdfTeX warning (ext4): destination with the same identifier (name{table.4}) has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.150 O
-       ur model achieves a CER of [VALUE] on unseen users, which is [PERCENT...pdfTeX warning (ext4): destination with the same identifier (name{table.4}) has been already used, duplicate ignored
+l.147 
+      pdfTeX warning (ext4): destination with the same identifier (name{table.5}) has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.150 O
-       ur model achieves a CER of [VALUE] on unseen users, which is [PERCENT...pdfTeX warning (ext4): destination with the same identifier (name{table.5}) has been already used, duplicate ignored
+l.147 
+      pdfTeX warning (ext4): destination with the same identifier (name{table.6}) has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.150 O
-       ur model achieves a CER of [VALUE] on unseen users, which is [PERCENT...]) (./sections/discussion.tex [7pdfTeX warning (ext4): destination with the same identifier (name{table.6}) has been already used, duplicate ignored
+l.147 
+      ]) (./sections/discussion.tex [7pdfTeX warning (ext4): destination with the same identifier (name{table.7}) has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.25 
-     ]) (./sections/references.tex) (./sections/appendix.tex
-Underfull \vbox (badness 2970) has occurred while \output is active []
-
- [8]
-Package hyperref Info: bookmark level for unknown algorithm defaults to 0 on input line 35.
- [9pdfTeX warning (ext4): destination with the same identifier (name{table.7}) has been already used, duplicate ignored
+l.13 F
+      uture work should explore alternative dimensionality reduction techniq...pdfTeX warning (ext4): destination with the same identifier (name{table.8}) has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.86 \end{table}
-                ]
-<../results/model-autoencoder-tiny/model-autoencoder-tiny_losses.png, id=254, 720.291pt x 505.89pt>
-File: ../results/model-autoencoder-tiny/model-autoencoder-tiny_losses.png Graphic file (type png)
-<use ../results/model-autoencoder-tiny/model-autoencoder-tiny_losses.png>
-Package pdftex.def Info: ../results/model-autoencoder-tiny/model-autoencoder-tiny_losses.png  used on input line 97.
-(pdftex.def)             Requested size: 190.78827pt x 199.17207pt.
-<../results/model-autoencoder-tiny/model-autoencoder-tiny_cer.png, id=255, 726.7953pt x 505.89pt>
-File: ../results/model-autoencoder-tiny/model-autoencoder-tiny_cer.png Graphic file (type png)
-<use ../results/model-autoencoder-tiny/model-autoencoder-tiny_cer.png>
-Package pdftex.def Info: ../results/model-autoencoder-tiny/model-autoencoder-tiny_cer.png  used on input line 104.
-(pdftex.def)             Requested size: 152.63152pt x 199.17207pt.
-<../results/model-multi-scale-tiny/model-multi-scale-tiny_loss.png, id=256, 720.291pt x 505.89pt>
-File: ../results/model-multi-scale-tiny/model-multi-scale-tiny_loss.png Graphic file (type png)
-<use ../results/model-multi-scale-tiny/model-multi-scale-tiny_loss.png>
-Package pdftex.def Info: ../results/model-multi-scale-tiny/model-multi-scale-tiny_loss.png  used on input line 115.
-(pdftex.def)             Requested size: 190.78827pt x 199.17207pt.
-<../results/model-multi-scale-tiny/model-multi-scale-tiny_cer.png, id=257, 726.7953pt x 505.89pt>
-File: ../results/model-multi-scale-tiny/model-multi-scale-tiny_cer.png Graphic file (type png)
-<use ../results/model-multi-scale-tiny/model-multi-scale-tiny_cer.png>
-Package pdftex.def Info: ../results/model-multi-scale-tiny/model-multi-scale-tiny_cer.png  used on input line 122.
-(pdftex.def)             Requested size: 152.63152pt x 199.17207pt.
+l.13 F
+      uture work should explore alternative dimensionality reduction techniq...] [8]) (./sections/references.tex) [9] [10] (./sections/appendix.tex
+<../output/spectrogram_comparison_0_reduced.png, id=231, 864.3492pt x 1089.8316pt>
+File: ../output/spectrogram_comparison_0_reduced.png Graphic file (type png)
+<use ../output/spectrogram_comparison_0_reduced.png>
+Package pdftex.def Info: ../output/spectrogram_comparison_0_reduced.png  used on input line 11.
+(pdftex.def)             Requested size: 190.79048pt x 199.15453pt.
+<../output/reconstruction_error_0_reduced.png, id=233, 574.0647pt x 1084.7727pt>
+File: ../output/reconstruction_error_0_reduced.png Graphic file (type png)
+<use ../output/reconstruction_error_0_reduced.png>
+Package pdftex.def Info: ../output/reconstruction_error_0_reduced.png  used on input line 18.
+(pdftex.def)             Requested size: 152.6257pt x 199.157pt.
+Package hyperref Info: bookmark level for unknown algorithm defaults to 0 on input line 30.
 
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-<../results/model-multi-scale-autoencoder-tiny/loss_plot.png, id=258, 726.7953pt x 394.5942pt>
+<../results/autoencoder-new/loss_plot.png, id=236, 723.6636pt x 394.5942pt>
+File: ../results/autoencoder-new/loss_plot.png Graphic file (type png)
+<use ../results/autoencoder-new/loss_plot.png>
+Package pdftex.def Info: ../results/autoencoder-new/loss_plot.png  used on input line 92.
+(pdftex.def)             Requested size: 238.4895pt x 199.17516pt.
+
+Underfull \vbox (badness 1259) has occurred while \output is active []
+
+ [11pdfTeX warning (ext4): destination with the same identifier (name{figure.1}) has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.96 
+     pdfTeX warning (ext4): destination with the same identifier (name{figure.2}) has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.96 
+     pdfTeX warning (ext4): destination with the same identifier (name{table.9}) has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.96 
+      <../output/spectrogram_comparison_0_reduced.png> <../output/reconstruction_error_0_reduced.png>]
+<../results/model-tiny-new/loss_plot.png, id=246, 723.6636pt x 394.5942pt>
+File: ../results/model-tiny-new/loss_plot.png Graphic file (type png)
+<use ../results/model-tiny-new/loss_plot.png>
+Package pdftex.def Info: ../results/model-tiny-new/loss_plot.png  used on input line 102.
+(pdftex.def)             Requested size: 190.78719pt x 199.17516pt.
+<../results/model-tiny-new/cer_zoomed_plot.png, id=247, 726.7953pt x 394.5942pt>
+File: ../results/model-tiny-new/cer_zoomed_plot.png Graphic file (type png)
+<use ../results/model-tiny-new/cer_zoomed_plot.png>
+Package pdftex.def Info: ../results/model-tiny-new/cer_zoomed_plot.png  used on input line 109.
+(pdftex.def)             Requested size: 190.79216pt x 199.17516pt.
+
+Underfull \vbox (badness 6125) has occurred while \output is active []
+
+ [12pdfTeX warning (ext4): destination with the same identifier (name{figure.3}) has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.114 
+       <../results/autoencoder-new/loss_plot.png>]
+<../results/model-autoencoder-tiny-new/loss_plot.png, id=284, 723.6636pt x 394.5942pt>
+File: ../results/model-autoencoder-tiny-new/loss_plot.png Graphic file (type png)
+<use ../results/model-autoencoder-tiny-new/loss_plot.png>
+Package pdftex.def Info: ../results/model-autoencoder-tiny-new/loss_plot.png  used on input line 120.
+(pdftex.def)             Requested size: 190.78719pt x 199.17516pt.
+<../results/model-autoencoder-tiny-new/cer_zoomed_plot.png, id=285, 726.7953pt x 394.5942pt>
+File: ../results/model-autoencoder-tiny-new/cer_zoomed_plot.png Graphic file (type png)
+<use ../results/model-autoencoder-tiny-new/cer_zoomed_plot.png>
+Package pdftex.def Info: ../results/model-autoencoder-tiny-new/cer_zoomed_plot.png  used on input line 127.
+(pdftex.def)             Requested size: 190.79216pt x 199.17516pt.
+<../results/model-multi-scale-tiny/loss_plot.png, id=286, 723.6636pt x 394.5942pt>
+File: ../results/model-multi-scale-tiny/loss_plot.png Graphic file (type png)
+<use ../results/model-multi-scale-tiny/loss_plot.png>
+Package pdftex.def Info: ../results/model-multi-scale-tiny/loss_plot.png  used on input line 138.
+(pdftex.def)             Requested size: 190.78719pt x 199.17516pt.
+<../results/model-multi-scale-tiny/cer_zoomed_plot.png, id=287, 726.7953pt x 394.5942pt>
+File: ../results/model-multi-scale-tiny/cer_zoomed_plot.png Graphic file (type png)
+<use ../results/model-multi-scale-tiny/cer_zoomed_plot.png>
+Package pdftex.def Info: ../results/model-multi-scale-tiny/cer_zoomed_plot.png  used on input line 145.
+(pdftex.def)             Requested size: 190.79216pt x 199.17516pt.
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [13pdfTeX warning (ext4): destination with the same identifier (name{figure.4}) has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.150 
+      pdfTeX warning (ext4): destination with the same identifier (name{figure.5}) has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.150 
+      pdfTeX warning (ext4): destination with the same identifier (name{figure.6}) has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.150 
+      pdfTeX warning (ext4): destination with the same identifier (name{figure.7}) has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.150 
+       <../results/model-tiny-new/loss_plot.png> <../results/model-tiny-new/cer_zoomed_plot.png> <../results/model-autoencoder-tiny-new/loss_plot.png> <../results/model-autoencoder-tiny-new/cer_zoomed_plot.png>]
+<../results/model-multi-scale-autoencoder-tiny/loss_plot.png, id=301, 723.6636pt x 394.5942pt>
 File: ../results/model-multi-scale-autoencoder-tiny/loss_plot.png Graphic file (type png)
 <use ../results/model-multi-scale-autoencoder-tiny/loss_plot.png>
-Package pdftex.def Info: ../results/model-multi-scale-autoencoder-tiny/loss_plot.png  used on input line 133.
-(pdftex.def)             Requested size: 190.79216pt x 199.17516pt.
-<../results/model-multi-scale-autoencoder-tiny/cer_zoomed_plot.png, id=259, 726.7953pt x 394.5942pt>
+Package pdftex.def Info: ../results/model-multi-scale-autoencoder-tiny/loss_plot.png  used on input line 156.
+(pdftex.def)             Requested size: 190.78719pt x 199.17516pt.
+<../results/model-multi-scale-autoencoder-tiny/cer_zoomed_plot.png, id=302, 726.7953pt x 394.5942pt>
 File: ../results/model-multi-scale-autoencoder-tiny/cer_zoomed_plot.png Graphic file (type png)
 <use ../results/model-multi-scale-autoencoder-tiny/cer_zoomed_plot.png>
-Package pdftex.def Info: ../results/model-multi-scale-autoencoder-tiny/cer_zoomed_plot.png  used on input line 140.
-(pdftex.def)             Requested size: 152.63152pt x 199.17516pt.
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-[10pdfTeX warning (ext4): destination with the same identifier (name{table.8}) has been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.160 [
-       FIGURE: Bar chart comparing baseline and proposed model performance a...pdfTeX warning (ext4): destination with the same identifier (name{figure.3}) has been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.160 [
-       FIGURE: Bar chart comparing baseline and proposed model performance a...pdfTeX warning (ext4): destination with the same identifier (name{figure.4}) has been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.160 [
-       FIGURE: Bar chart comparing baseline and proposed model performance a... <../results/model-autoencoder-tiny/model-autoencoder-tiny_losses.png> <../results/model-autoencoder-tiny/model-autoencoder-tiny_cer.png>]) [11pdfTeX warning (ext4): destination with the same identifier (name{figure.5}) has been already used, duplicate ignored
+Package pdftex.def Info: ../results/model-multi-scale-autoencoder-tiny/cer_zoomed_plot.png  used on input line 163.
+(pdftex.def)             Requested size: 190.79216pt x 199.17516pt.
+) [14pdfTeX warning (ext4): destination with the same identifier (name{figure.8}) has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
 l.56 \newpage
-             pdfTeX warning (ext4): destination with the same identifier (name{figure.6}) has been already used, duplicate ignored
+             pdfTeX warning (ext4): destination with the same identifier (name{figure.9}) has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
 l.56 \newpage
-             pdfTeX warning (ext4): destination with the same identifier (name{figure.7}) has been already used, duplicate ignored
+             pdfTeX warning (ext4): destination with the same identifier (name{figure.10}) has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
 l.56 \newpage
-             pdfTeX warning (ext4): destination with the same identifier (name{figure.8}) has been already used, duplicate ignored
+             pdfTeX warning (ext4): destination with the same identifier (name{figure.11}) has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
 l.56 \newpage
-              <../results/model-multi-scale-tiny/model-multi-scale-tiny_loss.png> <../results/model-multi-scale-tiny/model-multi-scale-tiny_cer.png> <../results/model-multi-scale-autoencoder-tiny/loss_plot.png> <../results/model-multi-scale-autoencoder-tiny/cer_zoomed_plot.png>] (./sections/checklist.tex [12] [13]) [14] (./report.aux)
+              <../results/model-multi-scale-tiny/loss_plot.png> <../results/model-multi-scale-tiny/cer_zoomed_plot.png> <../results/model-multi-scale-autoencoder-tiny/loss_plot.png> <../results/model-multi-scale-autoencoder-tiny/cer_zoomed_plot.png>] (./sections/checklist.tex [15] [16]) [17] (./report.aux)
 Package rerunfilecheck Info: File `report.out' has not changed.
-(rerunfilecheck)             Checksum: B6DD38623716475656B272B7C4A36CD3;6165.
+(rerunfilecheck)             Checksum: E612343354DE2BE2920A4933887EA70E;6432.
  ) 
 Here is how much of TeX's memory you used:
- 12962 strings out of 478287
- 207288 string characters out of 5849289
- 541410 words of memory out of 5000000
- 30615 multiletter control sequences out of 15000+600000
- 496832 words of font info for 177 fonts, out of 8000000 for 9000
+ 13004 strings out of 478287
+ 208211 string characters out of 5849289
+ 540989 words of memory out of 5000000
+ 30651 multiletter control sequences out of 15000+600000
+ 496829 words of font info for 177 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 70i,9n,76p,1147b,492s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 70i,8n,76p,1291b,496s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/share/texmf/fonts/enc/dvips/cm-super/cm-super-t1.enc}{/usr/share/texlive/texmf-dist/fonts/enc/dvips/base/8r.enc}</usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/share/texmf/fonts/type1/public/cm-super/sftt1000.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmr8a.pfb>
-Output written on report.pdf (14 pages, 2128279 bytes).
+Output written on report.pdf (17 pages, 3058292 bytes).
 PDF statistics:
- 366 PDF objects out of 1000 (max. 8388607)
- 320 compressed objects within 4 object streams
- 124 named destinations out of 1000 (max. 500000)
- 29001 words of extra memory for PDF output out of 29859 (max. 10000000)
+ 408 PDF objects out of 1000 (max. 8388607)
+ 353 compressed objects within 4 object streams
+ 132 named destinations out of 1000 (max. 500000)
+ 29024 words of extra memory for PDF output out of 29859 (max. 10000000)
 

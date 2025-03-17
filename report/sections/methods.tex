@@ -1,14 +1,14 @@
-\section{Methods}
+\section{Methods}\label{sec:methods}
 
 Our approach builds upon the EMG2QWERTY framework, which uses a temporal depth-separable (TDS) convolutional architecture with connectionist temporal classification (CTC) loss to predict keyboard typing from sEMG signals. We introduce two key modifications to this framework: an autoencoder for dimensionality reduction and multi-scale TDS convolutions.
 
-\subsection{Dataset and Preprocessing}
+\subsection{Dataset and Preprocessing}\label{subsec:dataset}
 
 We use the EMG2QWERTY dataset, which contains sEMG recordings from participants typing on a QWERTY keyboard. The dataset includes recordings from 16 electrodes placed on the forearm, capturing muscle activity during typing. The raw sEMG signals are preprocessed to extract spectrograms with 2 frequency bands per electrode, resulting in 32-channel input features.
 
 For our experiments, we use a subset of the original dataset, focusing on the 8 participants chosen for fine-tuning in the original EMG2QWERTY paper. The decision to train on a subset of the dataset was made to reduce the computational cost of the experiments, due to the large size of the dataset and the need to train multiple models on a limited computational and time budget. The data is split into training, validation, and test sets from the original dataset.
 
-\subsection{Autoencoder for Dimensionality Reduction}
+\subsection{Autoencoder for Dimensionality Reduction}\label{subsec:autoencoder}
 
 To address the challenge of high-dimensional input features, we introduce an autoencoder-based dimensionality reduction technique. The autoencoder compresses the 32-channel EMG spectrograms to a 16-channel bottleneck representation while preserving essential information.
 
@@ -38,7 +38,7 @@ The autoencoder is trained separately from the main model using mean squared err
 
 Once trained, we use only the encoder part of the autoencoder as a preprocessing step for the main model, reducing the input dimensionality from 32 to 16 channels. This encoder can be either frozen or fine-tuned during the main model training, depending on the experimental configuration.
 
-\subsection{Multi-Scale TDS Convolutions}
+\subsection{Multi-Scale TDS Convolutions}\label{subsec:multiscale}
 
 To better capture temporal dependencies at multiple scales, we replace the standard TDS convolution blocks in the original model with multi-scale TDS convolution blocks.
 
@@ -99,7 +99,7 @@ We deliberately chose the TDS convolutional architecture with multi-scale extens
 
 We believe that the global attention mechanism of transformers would provide minimal benefit for this task while introducing unnecessary computational overhead. Similarly, while RNNs could model the temporal dependencies, they face challenges with vanishing gradients and sequential processing that make them less suitable than our parallelizable convolutional approach. These architectural choices allow our model to efficiently process EMG signals while maintaining high prediction accuracy.
 
-\subsection{Training and Evaluation}
+\subsection{Training and Evaluation}\label{subsec:training}
 
 We train our model using the PyTorch Lightning framework with the following settings:
 \begin{itemize}
@@ -107,11 +107,15 @@ We train our model using the PyTorch Lightning framework with the following sett
     \item Learning rate scheduler: Linear warmup followed by cosine annealing
     \item Batch size: 32
     \item Training epochs: 150 with early stopping based on validation loss
+          \begin{itemize}
+              \item Early stopping patience: 10 epochs
+              \item Early stopping min delta: 0.05 CER (0.01 MSE for autoencoder)
+          \end{itemize}
     \item Loss function: CTC loss with blank token
 \end{itemize}
 
 For evaluation, we use character error rate (CER) as the primary metric, which measures the edit distance between the predicted and ground truth character sequences. We also report inference time to assess the practical utility of our approach.
 
-\subsubsection{Hardware and Implementation}
+\subsubsection{Hardware and Implementation}\label{subsec:hardware}
 
-All experiments were conducted on an AWS EC2 g5.2xlarge instance using one NVIDIA A10G GPU with 24 GB of VRAM. The training was implemented in PyTorch 2.6 and PyTorch Lightning. The autoencoder training took approximately 1 hour, while the full model training required approximately 3 hours per experiment. We used mixed-precision training (FP16) to improve computational efficiency and reduce memory requirements.
+All experiments were conducted on an AWS EC2 g5.2xlarge instance using one NVIDIA A10G GPU with 24 GB of VRAM. The training was implemented in PyTorch 2.6 and PyTorch Lightning. The autoencoder training took approximately 1 hour, while the full model training required approximately 4 hours per experiment. We used mixed-precision training (FP16) to improve computational efficiency and reduce memory requirements.
